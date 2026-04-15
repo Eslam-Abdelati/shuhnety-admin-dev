@@ -1,3 +1,4 @@
+import React from 'react';
 import { Users, CreditCard, ShoppingCart, MessageSquare, User, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
