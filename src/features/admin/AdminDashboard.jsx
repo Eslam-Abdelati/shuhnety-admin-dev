@@ -1,5 +1,14 @@
 import React from 'react';
-import { Users, CreditCard, ShoppingCart, MessageSquare, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Users, ShoppingCart, User, ChevronLeft, ChevronRight,
+  Package, Truck, CheckCircle, XCircle, Banknote, Star,
+  Eye, Edit, Trash2, TrendingUp, MoreHorizontal
+} from 'lucide-react';
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Cell, PieChart, Pie
+} from 'recharts';
+import { Button } from '@mui/material';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
   <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800 border dark:border-gray-700 transition-all hover:shadow-md">
@@ -17,140 +26,297 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
   </div>
 );
 
+// Mock Data for Charts
+const salesData = [
+  { name: 'السبت', sales: 40, orders: 25 },
+  { name: 'الأحد', sales: 30, orders: 55 },
+  { name: 'الاثنين', sales: 20, orders: 40 },
+  { name: 'الثلاثاء', sales: 27, orders: 39 },
+  { name: 'الأربعاء', sales: 18, orders: 48 },
+  { name: 'الخميس', sales: 23, orders: 38 },
+  { name: 'الجمعة', sales: 34, orders: 70 },
+];
+
+const shipmentTypeData = [
+  { type: 'بضائع عامة', count: 450, color: 'bg-blue-500' },
+  { type: 'مواد بناء', count: 320, color: 'bg-amber-500' },
+  { type: 'أثاث ومنزليات', count: 280, color: 'bg-emerald-500' },
+  { type: 'مواد غذائية', count: 190, color: 'bg-rose-500' },
+  { type: 'أجهزة إلكترونية', count: 120, color: 'bg-indigo-500' },
+];
+
+const growthData = [
+  { name: 'مكتملة', value: 75, color: '#10b981' },
+  { name: 'قيد التنفيذ', value: 15, color: '#f59e0b' },
+  { name: 'ملغية', value: 10, color: '#ef4444' },
+];
+
 export const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = React.useState(1);
-  const resultsPerPage = 10;
-  const totalResults = 100;
-  const totalPages = Math.ceil(totalResults / resultsPerPage);
+  const [timeFilter, setTimeFilter] = React.useState('اسبوعي');
+  const totalResults = 50;
 
   const stats = [
-    { icon: Users, label: 'إجمالي العملاء', value: '4,521', color: 'bg-orange-500' },
-    { icon: CreditCard, label: 'رصيد المحفظة', value: 'EGP 12,450', color: 'bg-green-500' },
-    { icon: ShoppingCart, label: 'الطلبات الجديدة', value: '150', color: 'bg-blue-500' },
-    { icon: MessageSquare, label: 'رسائل الدعم', value: '35', color: 'bg-teal-500' },
+    { icon: Users, label: 'إجمالي المستخدمين', value: '4,521', color: 'bg-blue-500' },
+    { icon: Banknote, label: 'إجمالي الأرباح', value: 'EGP 12,450', color: 'bg-emerald-500' },
+    { icon: Package, label: 'إجمالي الشحنات', value: '1,250', color: 'bg-indigo-500' },
+    { icon: Truck, label: 'شحنات نشطة', value: '85', color: 'bg-amber-500' },
+    { icon: CheckCircle, label: 'شحنات مكتملة', value: '1,100', color: 'bg-green-500' },
+    { icon: XCircle, label: 'شحنات ملغية', value: '65', color: 'bg-rose-500' },
   ];
 
-  // Generate fake data for the current page
-  const tableData = Array.from({ length: resultsPerPage }, (_, i) => {
-    const id = (currentPage - 1) * resultsPerPage + i + 1;
-    return {
-      id,
-      name: `أحمد محمد ${id}`,
-      role: id % 3 === 0 ? 'تاجر' : 'عميل عادي',
-      amount: id * 120,
-      status: id % 2 === 0 ? 'مكتمل' : 'قيد المراجعة',
-      date: `2024-04-${(id % 30) + 1}`
-    };
-  });
+  const captains = [
+    { id: 1, name: 'أحمد محمود', email: 'ahmed@shuhnety.com', vehicle: 'تريلا جامبو', status: 'موثق', rating: 4.8, date: '2024-03-20' },
+    { id: 2, name: 'محمد صبحي', email: 'mohamed@shuhnety.com', vehicle: 'نصف نقل', status: 'قيد المراجعة', rating: 4.2, date: '2024-03-22' },
+    { id: 3, name: 'سيد إبراهيم', email: 'sayed@shuhnety.com', vehicle: 'ميكروباص نقل', status: 'موثق', rating: 4.9, date: '2024-03-15' },
+    { id: 4, name: 'ياسر القحطاني', email: 'yasser@shuhnety.com', vehicle: 'عربة ربع نقل', status: 'موقوف', rating: 3.5, date: '2024-03-10' },
+    { id: 5, name: 'مصطفى كمال', email: 'mostafa@shuhnety.com', vehicle: 'تريلا مرسيدس', status: 'موثق', rating: 4.7, date: '2024-03-18' },
+  ];
 
   return (
     <div className="space-y-6 pb-8 animate-in fade-in duration-500">
-      {/* Cards */}
-      <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+      <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200">لوحة الإدارة الرئيسية</h2>
+
+      <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
       </div>
 
-      {/* Table Section */}
-      <div className="w-full overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+      {/* Charts Section */}
+      <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
+          <div className="flex-shrink-0">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">تقرير المبيعات والشحنات</h3>
+            <p className="text-xs text-gray-400 mt-1 font-medium">إحصائيات الأداء الأسبوعي للمنصة</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-10 gap-y-4 justify-center">
+            <div className="flex items-center gap-3">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#8b5cf6]"></div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-gray-500">الطلبات</span>
+                <span className="text-xl font-semibold text-gray-800 dark:text-gray-100">1000 طلب</span>
+              </div>
+            </div>
+
+            <div className="hidden sm:block h-8 w-px bg-gray-100 dark:bg-gray-700"></div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#0ea5e9]"></div>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-gray-500">المبيعات</span>
+                <span className="text-xl font-semibold text-gray-800 dark:text-gray-100">2057 جنيه</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden lg:block">
+            <button className="p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-400 transition-colors">
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="h-[350px] w-full mt-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#94a3b8', fontSize: 13, fontWeight: 500 }}
+                dy={15}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }}
+                tickFormatter={(value) => `${value}K`}
+                width={50}
+              />
+              <Tooltip
+                labelFormatter={(value) => `اليوم: ${value}`}
+                formatter={(value, name) => [`${value}K`, name === 'orders' ? 'الطلبات' : 'المبيعات']}
+                contentStyle={{
+                  borderRadius: '12px',
+                  border: 'none',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                  padding: '12px',
+                  textAlign: 'right',
+                  direction: 'rtl'
+                }}
+                cursor={{ stroke: '#8b5cf6', strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="orders"
+                stroke="#8b5cf6"
+                strokeWidth={3}
+                fillOpacity={0}
+                name="orders"
+              />
+              <Area
+                type="monotone"
+                dataKey="sales"
+                stroke="#0ea5e9"
+                strokeWidth={3}
+                fillOpacity={0}
+                name="sales"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Sales Growth */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">نمو المبيعات</h3>
+            <button className="text-gray-400"><MoreHorizontal className="w-5 h-5" /></button>
+          </div>
+          <div className="h-[220px] flex items-center justify-center relative">
+            <div className="absolute flex flex-col items-center">
+              <span className="text-3xl font-black text-gray-800 dark:text-white">75%</span>
+              <span className="text-xs font-bold text-gray-400">إجمالي النمو</span>
+            </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={growthData} innerRadius={70} outerRadius={90} paddingAngle={8} dataKey="value">
+                  {growthData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} cornerRadius={10} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="space-y-4 mt-6">
+            {growthData.map((item) => (
+              <div key={item.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                  <span className="text-sm font-bold text-gray-600 dark:text-gray-400">{item.name}</span>
+                </div>
+                <span className="text-sm font-black text-gray-800 dark:text-white">{item.value}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Top Shipment Types */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">الأكثر شحناً حسب النوع</h3>
+              <p className="text-xs text-gray-400 mt-1 font-medium">حسب الفترة المختارة</p>
+            </div>
+            <div className="flex px-1 gap-1">
+              {['يوم', 'اسبوع', 'شهر'].map((f) => (
+                <Button
+                  key={f}
+                  onClick={() => setTimeFilter(f)}
+                  size="small"
+                  className={`min-w-0 !px-4 !py-2 !text-xs !font-bold !rounded-md transition-all ${timeFilter === f
+                    ? '!bg-brand-primary/10 !text-brand-primary'
+                    : '!text-gray-400 hover:!bg-brand-primary/5 hover:!text-brand-primary'
+                    }`}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {f}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {shipmentTypeData.map((item) => {
+              const percentage = (item.count / 500) * 100;
+              return (
+                <div key={item.type} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-gray-600 dark:text-gray-400">{item.type}</span>
+                    <span className="text-sm font-black text-gray-800 dark:text-white">{item.count} شحنة</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1000 ${item.color}`}
+                      style={{ width: `${percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <button className="w-full mt-8 py-3 text-sm font-bold text-brand-primary bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl transition-all">
+            عرض تقرير الأنواع المفصل
+          </button>
+        </div>
+      </div>
+
+      {/* Tables Display */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <h3 className="font-bold text-gray-800 dark:text-gray-200">أحدث السائقين المسجلين</h3>
+          <Button
+            size="small"
+            className="!font-bold !text-brand-primary hover:!bg-brand-primary/5 !transition-all"
+            sx={{ textTransform: 'none' }}
+          >
+            عرض الكل
+          </Button>
+        </div>
         <div className="w-full overflow-x-auto">
-          <table className="w-full whitespace-no-wrap">
+          <table className="w-full text-right">
             <thead>
-              <tr className="text-xs font-bold tracking-wide text-right text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800/50">
-                <th className="px-4 py-4">العميل</th>
-                <th className="px-4 py-4">المبلغ</th>
-                <th className="px-4 py-4">الحالة</th>
-                <th className="px-4 py-4">التاريخ</th>
+              <tr className="text-xs font-bold text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50">
+                <th className="px-6 py-4">الكابتن</th>
+                <th className="px-6 py-4">المركبة</th>
+                <th className="px-6 py-4">الحالة</th>
+                <th className="px-6 py-4">التقييم</th>
+                <th className="px-6 py-4">التاريخ</th>
+                <th className="px-6 py-4 text-center">الإجراءات</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
-              {tableData.map((client) => (
-                <tr key={client.id} className="text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-4 py-4">
-                    <div className="flex items-center text-sm">
-                      <div className="relative w-9 h-9 ml-3 rounded-full md:block bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                        <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                        <div className="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
-                      </div>
-                      <div>
-                        <p className="font-bold text-gray-800 dark:text-gray-200">{client.name}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{client.role}</p>
-                      </div>
+            <tbody className="divide-y dark:divide-gray-700">
+              {captains.map((c) => (
+                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <td className="px-6 py-4 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center font-bold text-brand-primary">
+                      {c.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800 dark:text-gray-200">{c.name}</p>
+                      <p className="text-xs text-gray-500">{c.email}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-sm font-semibold">{client.amount.toLocaleString()} EGP</td>
-                  <td className="px-4 py-4 text-xs">
-                    <span className={`px-3 py-1 font-bold leading-tight rounded-full ${
-                      client.status === 'مكتمل' 
-                        ? 'text-green-700 bg-green-100 dark:bg-green-700/20 dark:text-green-400' 
-                        : 'text-orange-700 bg-orange-100 dark:bg-orange-700/20 dark:text-orange-400'
-                    }`}>
-                      {client.status}
-                    </span>
+                  <td className="px-6 py-4 text-sm font-medium">{c.vehicle}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${c.status === 'موثق' ? 'bg-green-100 text-green-700' :
+                      c.status === 'موقوف' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
+                      }`}>{c.status}</span>
                   </td>
-                  <td className="px-4 py-4 text-xs text-gray-500 font-medium">{client.date}</td>
+                  <td className="px-6 py-4 flex items-center gap-1 font-bold text-sm">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {c.rating}
+                  </td>
+                  <td className="px-6 py-4 text-xs text-gray-400 font-medium">{c.date}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center gap-2">
+                      <button className="p-2 hover:bg-brand-primary/10 rounded-lg text-gray-400 hover:text-brand-primary transition-all"><Eye className="w-4 h-4" /></button>
+                      <button className="p-2 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-all"><Edit className="w-4 h-4" /></button>
+                      <button className="p-2 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        
-        {/* Pagination inspired by Windmill Dashboard */}
-        <div className="px-4 py-3 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <div className="flex flex-col justify-between text-xs sm:flex-row text-gray-600 dark:text-gray-400">
-            <span className="flex items-center font-bold tracking-wide uppercase">
-              عرض {(currentPage - 1) * resultsPerPage + 1}-{Math.min(currentPage * resultsPerPage, totalResults)} من أصل {totalResults}
-            </span>
-            <div className="flex mt-2 sm:mt-0">
-              <nav aria-label="Table navigation">
-                <ul className="inline-flex items-center gap-1">
-                  <li>
-                    <button 
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className="px-2 py-2 rounded-md focus:outline-none focus:shadow-outline-purple hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
-                      aria-label="Previous"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </li>
-                  {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                    const pageNumber = i + 1;
-                    return (
-                      <li key={pageNumber}>
-                        <button 
-                          onClick={() => setCurrentPage(pageNumber)}
-                          className={`px-3 py-1 rounded-md focus:outline-none focus:shadow-outline-purple transition-all font-bold ${
-                            currentPage === pageNumber 
-                              ? 'text-white bg-purple-600 shadow-lg shadow-purple-500/30' 
-                              : 'hover:bg-gray-200 dark:hover:bg-gray-700'
-                          }`}
-                        >
-                          {pageNumber}
-                        </button>
-                      </li>
-                    );
-                  })}
-                  {totalPages > 5 && <li><span className="px-2">...</span></li>}
-                  <li>
-                    <button 
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className="px-2 py-2 rounded-md focus:outline-none focus:shadow-outline-purple hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
-                      aria-label="Next"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </div>
       </div>
+
     </div>
   );
 };
-
-
