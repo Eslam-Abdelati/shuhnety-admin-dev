@@ -86,7 +86,7 @@ export const ShipmentDetails = () => {
            </Button>
            <Button 
              component={Link}
-             to={`/admin/shipments/track/${shipment.id}`}
+             to={`/shipments/track/${shipment.id}`}
              className="!bg-brand-primary !text-white !rounded-xl !px-6 !py-2.5 !font-black shadow-lg"
              startIcon={<MapIcon className="w-4 h-4 ml-1" />}
            >

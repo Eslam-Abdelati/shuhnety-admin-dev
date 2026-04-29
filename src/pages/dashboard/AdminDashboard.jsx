@@ -1,25 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users, ShoppingCart, User, ChevronLeft, ChevronRight,
   Package, Truck, CheckCircle, XCircle, Banknote, Star,
-  Eye, Edit, Trash2, TrendingUp, MoreHorizontal
+  Eye, Edit, Trash2, TrendingUp, MoreHorizontal, Plus
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell, PieChart, Pie
 } from 'recharts';
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { userService } from '../../services/userService';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800 border dark:border-gray-700 transition-all hover:shadow-md">
-    <div className={`p-3 ml-4 rounded-full ${color}`}>
-      <Icon className="w-5 h-5 text-white" />
+  <div className="flex items-center p-3 sm:p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800 border dark:border-gray-700 transition-all hover:shadow-md min-w-0">
+    <div className={`flex-shrink-0 p-2 sm:p-3 ml-2 sm:ml-4 rounded-full ${color}`}>
+      <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
     </div>
-    <div>
-      <p className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+    <div className="min-w-0">
+      <p className="mb-1 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-normal leading-tight">
         {label}
       </p>
-      <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">
+      <p className="text-md sm:text-lg font-semibold text-gray-700 dark:text-gray-200 truncate">
         {value}
       </p>
     </div>
@@ -52,9 +54,33 @@ const growthData = [
 ];
 
 export const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = React.useState(1);
   const [timeFilter, setTimeFilter] = React.useState('اسبوعي');
-  const totalResults = 50;
+  const [captains, setCaptains] = useState([]);
+  const [isLoadingCaptains, setIsLoadingCaptains] = useState(true);
+
+  // Fetch Drivers from API
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        setIsLoadingCaptains(true);
+        const response = await userService.getAllUsers({ userRole: 'driver' });
+        console.log(response
+
+        );
+
+        // Take only the first 5 for the dashboard table
+        const driversList = (response?.data || response || []).slice(0, 5);
+        setCaptains(driversList);
+      } catch (error) {
+        console.error('Error fetching dashboard drivers:', error);
+      } finally {
+        setIsLoadingCaptains(false);
+      }
+    };
+    fetchDrivers();
+  }, []);
 
   const stats = [
     { icon: Users, label: 'إجمالي المستخدمين', value: '4,521', color: 'bg-blue-500' },
@@ -65,19 +91,21 @@ export const AdminDashboard = () => {
     { icon: XCircle, label: 'شحنات ملغية', value: '65', color: 'bg-rose-500' },
   ];
 
-  const captains = [
-    { id: 1, name: 'أحمد محمود', email: 'ahmed@shuhnety.com', vehicle: 'تريلا جامبو', status: 'موثق', rating: 4.8, date: '2024-03-20' },
-    { id: 2, name: 'محمد صبحي', email: 'mohamed@shuhnety.com', vehicle: 'نصف نقل', status: 'قيد المراجعة', rating: 4.2, date: '2024-03-22' },
-    { id: 3, name: 'سيد إبراهيم', email: 'sayed@shuhnety.com', vehicle: 'ميكروباص نقل', status: 'موثق', rating: 4.9, date: '2024-03-15' },
-    { id: 4, name: 'ياسر القحطاني', email: 'yasser@shuhnety.com', vehicle: 'عربة ربع نقل', status: 'موقوف', rating: 3.5, date: '2024-03-10' },
-    { id: 5, name: 'مصطفى كمال', email: 'mostafa@shuhnety.com', vehicle: 'تريلا مرسيدس', status: 'موثق', rating: 4.7, date: '2024-03-18' },
-  ];
-
   return (
-    <div className="space-y-6 pb-8 animate-in fade-in duration-500">
-      <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200">لوحة الإدارة الرئيسية</h2>
+    <div className="w-full max-w-full overflow-x-hidden space-y-6 pb-8 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200">لوحة الإدارة الرئيسية</h2>
+        <Button
+          variant="contained"
+          onClick={() => navigate('/users/add-manager')}
+          className="!bg-brand-primary !rounded-xl !py-2.5 !px-6 !font-bold !shadow-sm transition-all duration-300 hover:!bg-brand-primary/90 hover:shadow-md !text-sm whitespace-nowrap"
+          sx={{ textTransform: 'none' }}
+        >
+          إضافة مدير
+        </Button>
+      </div>
 
-      <div className="grid gap-6 mb-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
@@ -118,8 +146,8 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="h-[350px] w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[350px] w-full mt-4 relative">
+          <ResponsiveContainer width="100%" height={350} minWidth={0}>
             <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
               <XAxis
@@ -178,12 +206,12 @@ export const AdminDashboard = () => {
             <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">نمو المبيعات</h3>
             <button className="text-gray-400"><MoreHorizontal className="w-5 h-5" /></button>
           </div>
-          <div className="h-[220px] flex items-center justify-center relative">
-            <div className="absolute flex flex-col items-center">
+          <div className="h-[220px] w-full relative">
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
               <span className="text-3xl font-black text-gray-800 dark:text-white">75%</span>
               <span className="text-xs font-bold text-gray-400">إجمالي النمو</span>
             </div>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={220} minWidth={0}>
               <PieChart>
                 <Pie data={growthData} innerRadius={70} outerRadius={90} paddingAngle={8} dataKey="value">
                   {growthData.map((entry, index) => (
@@ -208,25 +236,23 @@ export const AdminDashboard = () => {
 
         {/* Top Shipment Types */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-start justify-between mb-8 gap-4">
             <div>
               <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">الأكثر شحناً حسب النوع</h3>
               <p className="text-xs text-gray-400 mt-1 font-medium">حسب الفترة المختارة</p>
             </div>
-            <div className="flex px-1 gap-1">
-              {['يوم', 'اسبوع', 'شهر'].map((f) => (
-                <Button
+            <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700/50 p-1 rounded-lg">
+              {['يوم', 'شهر', 'سنة'].map((f) => (
+                <button
                   key={f}
                   onClick={() => setTimeFilter(f)}
-                  size="small"
-                  className={`min-w-0 !px-4 !py-2 !text-xs !font-bold !rounded-md transition-all ${timeFilter === f
-                    ? '!bg-brand-primary/10 !text-brand-primary'
-                    : '!text-gray-400 hover:!bg-brand-primary/5 hover:!text-brand-primary'
+                  className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${timeFilter === f
+                    ? 'bg-white dark:bg-gray-800 text-brand-primary shadow-sm'
+                    : 'text-gray-400 hover:text-brand-primary'
                     }`}
-                  sx={{ textTransform: 'none' }}
                 >
                   {f}
-                </Button>
+                </button>
               ))}
             </div>
           </div>
@@ -258,62 +284,91 @@ export const AdminDashboard = () => {
       </div>
 
       {/* Tables Display */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8 w-full max-w-full">
         <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-          <h3 className="font-bold text-gray-800 dark:text-gray-200">أحدث السائقين المسجلين</h3>
+          <h3 className="font-bold text-gray-800 dark:text-gray-200">أحدث الكباتن المسجلين</h3>
           <Button
             size="small"
+            onClick={() => navigate('/users')}
             className="!font-bold !text-brand-primary hover:!bg-brand-primary/5 !transition-all"
             sx={{ textTransform: 'none' }}
           >
             عرض الكل
           </Button>
         </div>
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-right">
-            <thead>
-              <tr className="text-xs font-bold text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50">
-                <th className="px-6 py-4">الكابتن</th>
-                <th className="px-6 py-4">المركبة</th>
-                <th className="px-6 py-4">الحالة</th>
-                <th className="px-6 py-4">التقييم</th>
-                <th className="px-6 py-4">التاريخ</th>
-                <th className="px-6 py-4 text-center">الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y dark:divide-gray-700">
-              {captains.map((c) => (
-                <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center font-bold text-brand-primary">
-                      {c.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-bold text-gray-800 dark:text-gray-200">{c.name}</p>
-                      <p className="text-xs text-gray-500">{c.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium">{c.vehicle}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${c.status === 'موثق' ? 'bg-green-100 text-green-700' :
-                      c.status === 'موقوف' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'
-                      }`}>{c.status}</span>
-                  </td>
-                  <td className="px-6 py-4 flex items-center gap-1 font-bold text-sm">
-                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {c.rating}
-                  </td>
-                  <td className="px-6 py-4 text-xs text-gray-400 font-medium">{c.date}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex justify-center gap-2">
-                      <button className="p-2 hover:bg-brand-primary/10 rounded-lg text-gray-400 hover:text-brand-primary transition-all"><Eye className="w-4 h-4" /></button>
-                      <button className="p-2 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-all"><Edit className="w-4 h-4" /></button>
-                      <button className="p-2 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
+        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 min-h-[300px] flex flex-col">
+          {isLoadingCaptains ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12 gap-3">
+              <CircularProgress size={35} className="!text-brand-primary" />
+              <p className="text-gray-400 text-xs font-bold animate-pulse">جاري تحميل قائمة الكباتن...</p>
+            </div>
+          ) : captains.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-12 text-gray-400 font-bold">
+              لا يوجد كباتن مسجلين حالياً
+            </div>
+          ) : (
+            <table className="w-full text-right min-w-[800px]">
+              <thead>
+                <tr className="text-xs font-bold text-gray-500 uppercase bg-gray-50/50 dark:bg-gray-800/50">
+                  <th className="px-6 py-4 text-right">الكابتن</th>
+                  <th className="px-6 py-4 text-right">المركبة</th>
+                  <th className="px-6 py-4 text-right">الحالة</th>
+                  <th className="px-6 py-4 text-right">التقييم</th>
+                  <th className="px-6 py-4 text-right">التاريخ</th>
+                  <th className="px-6 py-4 text-center">الإجراءات</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y dark:divide-gray-700">
+                {captains.map((c) => (
+                  <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td className="px-6 py-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center font-bold text-brand-primary">
+                        {c.full_name?.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 dark:text-gray-200">{c.full_name}</p>
+                        <p className="text-xs text-gray-500">{c.email}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium">
+                      {c.role === 'driver' ? 'نقل ثقيل' : 'عميل'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 text-xs font-bold rounded-full ${c.status === 'موثق' || (c.isActive && !c.status) ? 'bg-emerald-100 text-emerald-700' :
+                        c.status === 'موقوف' || (!c.isActive && !c.status) ? 'bg-rose-100 text-rose-700' :
+                          c.status === 'قيد المراجعة' ? 'bg-amber-100 text-amber-700' :
+                            'bg-gray-100 text-gray-700'
+                        }`}>
+                        {c.status || (c.isActive ? 'موثق' : 'موقوف')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 flex items-center gap-1 font-bold text-sm">
+                      <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {c.rating || '0.0'}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-400 font-medium">
+                      {c.createDateTime ? new Date(c.createDateTime).toLocaleDateString('ar-EG') : '—'}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => navigate(`/users/details/${c.id}`)}
+                          className="p-2 hover:bg-brand-primary/10 rounded-lg text-gray-400 hover:text-brand-primary transition-all"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button className="p-2 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-all">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button className="p-2 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-all">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

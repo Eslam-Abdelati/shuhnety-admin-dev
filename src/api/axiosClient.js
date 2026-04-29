@@ -1,4 +1,4 @@
-﻿import axios from "axios";
+import axios from "axios";
 import Cookies from "js-cookie";
 
 // في بيئة التطوير نستخدم الرابط المباشر من .env
@@ -25,12 +25,9 @@ axiosClient.interceptors.request.use((config) => {
   }
 
   // تجاوز صفحة ngrok
-  if (!isDevelopment) {
-    config.headers['ngrok-skip-browser-warning'] = 'true';
-  } else if (API_BASE_URL && API_BASE_URL.includes('ngrok')) {
-    config.params = config.params || {};
-    config.params['ngrok-skip-browser-warning'] = 'true';
-  }
+  // نرسلها دائماً كـ header لضمان عملها مع الـ proxy أو بدونه
+  config.headers['ngrok-skip-browser-warning'] = 'true';
+
 
   return config;
 });

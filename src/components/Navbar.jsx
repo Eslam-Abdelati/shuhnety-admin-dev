@@ -4,6 +4,8 @@ import {
   Menu, Search, Bell, Moon, Sun, User, LogOut,
   ShieldCheck, Package, MessageSquare, AlertCircle, Clock
 } from 'lucide-react';
+import { authService } from '../services/authService';
+import Cookies from 'js-cookie';
 
 const Navbar = ({
   toggleSidebar,
@@ -12,6 +14,8 @@ const Navbar = ({
 }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  
+  const [user, setUser] = useState(null);
 
   const notificationsRef = useRef(null);
   const profileRef = useRef(null);
@@ -67,6 +71,18 @@ const Navbar = ({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
+
+    // Fetch fresh profile data
+    const fetchProfile = async () => {
+      try {
+        const userData = await authService.getProfile();
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch navbar profile:', error);
+      }
+    };
+    fetchProfile();
+
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
@@ -81,8 +97,8 @@ const Navbar = ({
   };
 
   return (
-    <nav className="z-10 py-4 bg-white shadow-sm dark:bg-gray-800 transition-colors border-b dark:border-gray-700">
-      <div className="container flex items-center justify-between px-6 mx-auto text-brand-primary dark:text-brand-primary gap-6">
+    <nav className="z-50 py-4 bg-white shadow-sm dark:bg-gray-800 transition-colors border-b dark:border-gray-700">
+      <div className="flex items-center justify-between px-4 sm:px-6 mx-auto text-brand-primary dark:text-brand-primary gap-6">
 
         <div className="flex items-center flex-1 gap-4">
           <button
@@ -125,7 +141,7 @@ const Navbar = ({
               <span className="absolute top-2.5 right-2.5 inline-block w-2.5 h-2.5 bg-red-600 border-2 border-white rounded-full dark:border-gray-800"></span>
             </button>
             {isNotificationsOpen && (
-              <div className="absolute left-0 top-full w-80 mt-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="fixed inset-x-4 top-[75px] sm:absolute sm:left-0 sm:right-auto sm:top-full sm:w-80 sm:mt-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                   <h3 className="font-bold text-gray-800 dark:text-gray-200">الإشعارات</h3>
                   <span className="text-[10px] bg-red-50 text-red-600 px-2 py-0.5 rounded-full font-bold">2 جديد</span>
@@ -171,26 +187,35 @@ const Navbar = ({
               onClick={toggleProfile}
             >
               <div className="w-9 h-9 rounded-full bg-brand-primary flex items-center justify-center text-white text-xs font-bold shadow-md group-hover:shadow-brand-primary/20 transition-all">
-                AD
+                {user?.full_name?.charAt(0) || user?.name?.charAt(0) || 'AD'}
               </div>
             </button>
             {isProfileOpen && (
-              <ul className="absolute left-0 top-full w-56 p-2 mt-3 space-y-1 text-gray-600 bg-white border border-gray-100 rounded-2xl shadow-xl dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700 animate-in fade-in slide-in-from-top-2 duration-200 z-50 overflow-hidden">
+              <ul className="fixed inset-x-4 top-[75px] sm:absolute sm:left-0 sm:right-auto sm:top-full sm:w-56 p-2 mt-3 space-y-1 text-gray-600 bg-white border border-gray-100 rounded-2xl shadow-xl dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700 animate-in fade-in slide-in-from-top-2 duration-200 z-50 overflow-hidden">
                 <li className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 mb-1">
-                  <p className="text-xs font-bold text-gray-400">مرحباً</p>
-                  <p className="text-sm font-bold text-gray-800 dark:text-white">أدمن النظام</p>
+                  <p className="text-sm font-bold text-gray-800 dark:text-white truncate">
+                    {user?.full_name || user?.name || 'أدمن النظام'}
+                  </p>
+                  <p className="text-xs font-bold text-gray-400">{user?.email}</p>
                 </li>
                 <li>
-                  <a className="inline-flex items-center w-full px-4 py-3 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+                  <Link
+                    to="/profile"
+                    className="inline-flex items-center w-full px-4 py-3 text-sm font-semibold rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={() => setIsProfileOpen(false)}
+                  >
                     <User className="w-4 h-4 ml-3" />
                     <span>الملف الشخصي</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/login" className="inline-flex items-center w-full px-4 py-3 text-sm font-semibold rounded-xl hover:bg-red-50 text-gray-700 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors">
+                  <button
+                    onClick={() => authService.logout()}
+                    className="inline-flex items-center w-full px-4 py-3 text-sm font-semibold rounded-xl hover:bg-red-50 text-gray-700 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                  >
                     <LogOut className="w-4 h-4 ml-3" />
                     <span>تسجيل الخروج</span>
-                  </Link>
+                  </button>
                 </li>
               </ul>
             )}

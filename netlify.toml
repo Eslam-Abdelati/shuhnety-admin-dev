@@ -3,6 +3,15 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/api/*"
+  to = "https://healthy-salmon-darling.ngrok-free.app/:splat"
+  status = 200
+  force = true
+  [redirects.headers]
+    ngrok-skip-browser-warning = "true"
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+

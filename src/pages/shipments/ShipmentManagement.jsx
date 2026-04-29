@@ -337,7 +337,7 @@ const ShipmentActions = ({ shipment, onOpenStatusDialog }) => {
       >
         <MenuItem 
           component={Link}
-          to={`/admin/shipments/details/${shipment.id}`}
+          to={`/shipments/details/${shipment.id}`}
           onClick={() => setAnchorEl(null)} 
           className="!flex !items-center !gap-3 !rounded-xl !py-2.5 !text-sm !font-black !text-gray-700 dark:!text-gray-200"
         >
@@ -345,7 +345,7 @@ const ShipmentActions = ({ shipment, onOpenStatusDialog }) => {
         </MenuItem>
         <MenuItem 
           component={Link}
-          to={`/admin/shipments/track/${shipment.id}`}
+          to={`/shipments/track/${shipment.id}`}
           onClick={() => setAnchorEl(null)} 
           className="!flex !items-center !gap-3 !rounded-xl !py-2.5 !text-sm !font-black !text-blue-600"
         >

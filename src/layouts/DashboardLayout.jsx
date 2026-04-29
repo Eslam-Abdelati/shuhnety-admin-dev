@@ -20,14 +20,14 @@ export const DashboardLayout = () => {
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 font-cairo overflow-hidden" dir="rtl">
       {/* Sidebar Component handles its own menu and logic */}
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        toggle={toggleSidebar} 
+      <Sidebar
+        isOpen={isSidebarOpen}
+        toggle={toggleSidebar}
       />
 
       <div className="flex flex-col flex-1 w-full overflow-hidden">
         {/* Navbar Component */}
-        <Navbar 
+        <Navbar
           toggleSidebar={toggleSidebar}
           isDarkMode={isDarkMode}
           toggleDarkMode={() => setIsDarkMode(!isDarkMode)}
@@ -35,7 +35,7 @@ export const DashboardLayout = () => {
 
         {/* Root Content Area */}
         <main className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
-          <div className="container grid px-6 mx-auto py-6">
+          <div className="grid px-6 mx-auto py-6">
             <Outlet />
           </div>
         </main>

@@ -90,30 +90,20 @@ const SidebarItem = ({ to, icon: Icon, label, active, onClick, subItems, pathnam
 
 const SidebarContent = ({ pathname, onLinkClick }) => {
   const menuItems = [
-    { to: '/admin', icon: Home, label: 'لوحة التحكم' },
-    {
-      to: '/admin/users',
-      icon: Users,
-      label: 'إدارة المستخدمين',
-      subItems: [
-        { to: '/admin/users', icon: Users, label: 'جميع المستخدمين' },
-        { to: '/admin/users/customer', icon: User, label: 'العملاء' },
-        { to: '/admin/users/driver', icon: Truck, label: 'السائقين' },
-        { to: '/admin/users/company', icon: Building, label: 'الشركات' },
-      ]
-    },
-    { to: '/admin/shipments', icon: Package, label: 'إدارة الشحنات' },
-    { to: '/admin/verification', icon: ShieldCheck, label: 'توثيق السائقين' },
-    { to: '/admin/operations', icon: Globe, label: 'إدارة المنصة' },
-    { to: '/admin/reports', icon: FileText, label: 'التقارير والإحصائيات' },
-    { to: '/admin/disputes', icon: MessageSquare, label: 'النزاعات والشكاوى' },
-    { to: '/admin/contracts', icon: LayoutGrid, label: 'العقود الرقمية' },
-    { to: '/admin/settings', icon: Settings, label: 'إعدادات النظام' },
+    { to: '/dashboard', icon: Home, label: 'لوحة التحكم' },
+    { to: '/users', icon: Users, label: 'إدارة المستخدمين' },
+    { to: '/shipments', icon: Package, label: 'إدارة الشحنات' },
+    { to: '/verification', icon: ShieldCheck, label: 'توثيق السائقين' },
+    { to: '/operations', icon: Globe, label: 'إدارة المنصة' },
+    { to: '/reports', icon: FileText, label: 'التقارير والإحصائيات' },
+    { to: '/disputes', icon: MessageSquare, label: 'النزاعات والشكاوى' },
+    { to: '/contracts', icon: LayoutGrid, label: 'العقود الرقمية' },
+    { to: '/settings', icon: Settings, label: 'إعدادات النظام' },
   ];
 
   return (
     <div className="py-4 text-gray-500 dark:text-gray-400">
-      <Link to="/admin" className="mr-6 text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+      <Link to="/dashboard" className="mr-6 text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
         <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center text-white font-bold">
           SH
         </div>
@@ -157,7 +147,7 @@ const Sidebar = ({ isOpen, toggle }) => {
           }`}
       >
         <div className="flex items-center justify-between px-6 py-4">
-          <Link to="/admin" className="text-lg font-bold text-gray-800 dark:text-gray-200">
+          <Link to="/dashboard" className="text-lg font-bold text-gray-800 dark:text-gray-200">
             شحنتي
           </Link>
           <button onClick={toggle}>
