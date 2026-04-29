@@ -28,7 +28,7 @@ export const fullNameSchema = z.string()
 
 export const loginSchema = z.object({
   email: emailSchema,
-  password: passwordSchema(6), // custom min length for login
+  password: z.string().min(1, 'كلمة المرور مطلوبة'),
 });
 
 export const managerSchema = z.object({
