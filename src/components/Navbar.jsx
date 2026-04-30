@@ -5,6 +5,7 @@ import {
   ShieldCheck, Package, MessageSquare, AlertCircle, Clock
 } from 'lucide-react';
 import { authService } from '../services/authService';
+import { userService } from '../services/userService';
 import Cookies from 'js-cookie';
 
 const Navbar = ({
@@ -75,7 +76,7 @@ const Navbar = ({
     // Fetch fresh profile data
     const fetchProfile = async () => {
       try {
-        const userData = await authService.getProfile();
+        const userData = await userService.getAdminProfile();
         setUser(userData);
       } catch (error) {
         console.error('Failed to fetch navbar profile:', error);

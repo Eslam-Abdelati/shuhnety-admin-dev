@@ -173,8 +173,8 @@ export const ShipmentManagement = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight">إدارة الشحنات</h2>
-          <p className="text-sm text-gray-400 font-medium mt-1">مراقبة وتتبع حركة الشحنات والعمليات الجارية</p>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">إدارة الشحنات</h2>
+          <p className="text-sm text-gray-400 font-medium mt-1">تتبع وإدارة كافة الشحنات الجارية والمنتهية في النظام</p>
         </div>
         <div className="flex gap-3">
            <Button className="!bg-white dark:!bg-gray-800 !border !border-gray-100 !rounded-xl !px-4 !py-2.5 !text-gray-500 !font-bold hover:!bg-gray-50 shadow-sm" startIcon={<Download className="w-4 h-4 ml-1" />}>تصدير البيانات</Button>

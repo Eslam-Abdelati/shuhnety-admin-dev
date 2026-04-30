@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { Button, CircularProgress } from '@mui/material';
 import {
   User, Mail, Phone, Lock, Shield,
   ArrowRight, Save, X, AlertCircle, Eye, EyeOff, ChevronDown
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
+import { adminService } from '../../services/adminService';
 import { managerSchema } from '../../utils/zodSchemas';
 
 const AddManagerPage = () => {
@@ -27,12 +28,6 @@ const AddManagerPage = () => {
       email: '',
       phone: '',
       role: 'admin',
-      permissions: {
-        manage_users: true,
-        manage_shipments: true,
-        view_reports: false,
-        manage_settings: false,
-      }
     }
   });
 
@@ -40,13 +35,25 @@ const AddManagerPage = () => {
     setIsLoading(true);
     const loadingToast = toast.loading('جاري حفظ البيانات...');
 
-    setTimeout(() => {
+    try {
+      // Map data to expected API payload
+      const payload = {
+        full_name: data.name,
+        email: data.email,
+        phone_number: data.phone,
+        role: data.role,
+      };
+
+      const result = await adminService.createAdmin(payload);
+
+      toast.success('تم إضافة المدير بنجاح');
+      navigate('/dashboard/admins'); 
+    } catch (error) {
+      toast.error(error.message || 'حدث خطأ أثناء حفظ البيانات');
+    } finally {
       setIsLoading(false);
       toast.dismiss(loadingToast);
-      toast.success('تم إضافة المدير بنجاح');
-      console.log('Submitted Data:', data);
-      navigate('/dashboard');
-    }, 1500);
+    }
   };
 
   const inputClass = "block w-full mt-1 text-sm dark:text-gray-300 bg-white dark:bg-gray-700 border rounded-md py-2.5 px-3 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/20 focus:outline-none transition-all";
@@ -54,7 +61,7 @@ const AddManagerPage = () => {
 
   return (
     <div className="container mx-auto grid" dir="rtl">
-      <h2 className="mb-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+      <h2 className="mb-6 text-2xl font-bold text-gray-800 dark:text-white">
         إضافة مدير جديد
       </h2>
 
@@ -71,7 +78,7 @@ const AddManagerPage = () => {
 
           {/* Full Name */}
           <label className={labelClass}>
-            <span>الاسم الكامل</span>
+            <span>الاسم بالكامل</span>
             <input
               {...register('name')}
               type="text"
@@ -106,6 +113,7 @@ const AddManagerPage = () => {
           </label>
 
 
+
           {/* Role */}
           <label className={labelClass}>
             <span>الدور الوظيفي</span>
@@ -126,96 +134,31 @@ const AddManagerPage = () => {
 
         </div>
 
-        {/* Permissions Section */}
-        <div className="mt-8 border-t dark:border-gray-700 pt-6">
-          <h4 className="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
-            الصلاحيات الممنوحة
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-            <Controller
-              name="permissions.manage_users"
-              control={control}
-              render={({ field }) => (
-                <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-transparent hover:border-brand-primary transition-all">
-                  <input
-                    type="checkbox"
-                    className="text-brand-primary form-checkbox h-5 w-5 rounded border-gray-300 focus:ring-brand-primary"
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-400 font-medium whitespace-nowrap">إدارة المستخدمين</span>
-                </label>
-              )}
-            />
-
-            <Controller
-              name="permissions.manage_shipments"
-              control={control}
-              render={({ field }) => (
-                <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-transparent hover:border-brand-primary transition-all">
-                  <input
-                    type="checkbox"
-                    className="text-brand-primary form-checkbox h-5 w-5 rounded border-gray-300 focus:ring-brand-primary"
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-400 font-medium whitespace-nowrap">إدارة الشحنات</span>
-                </label>
-              )}
-            />
-
-            <Controller
-              name="permissions.view_reports"
-              control={control}
-              render={({ field }) => (
-                <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-transparent hover:border-brand-primary transition-all">
-                  <input
-                    type="checkbox"
-                    className="text-brand-primary form-checkbox h-5 w-5 rounded border-gray-300 focus:ring-brand-primary"
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-400 font-medium whitespace-nowrap">عرض التقارير</span>
-                </label>
-              )}
-            />
-
-            <Controller
-              name="permissions.manage_settings"
-              control={control}
-              render={({ field }) => (
-                <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-transparent hover:border-brand-primary transition-all">
-                  <input
-                    type="checkbox"
-                    className="text-brand-primary form-checkbox h-5 w-5 rounded border-gray-300 focus:ring-brand-primary"
-                    checked={field.value}
-                    onChange={field.onChange}
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-400 font-medium whitespace-nowrap">إعدادات النظام</span>
-                </label>
-              )}
-            />
-
-          </div>
-        </div>
-
         {/* Form Actions */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3">
-          <button
-            type="button"
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-end gap-4 border-t dark:border-gray-700 pt-6">
+          <Button
+            variant="outlined"
             onClick={() => navigate(-1)}
-            className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium leading-5 text-gray-700 transition-colors duration-150 border border-gray-300 rounded-lg dark:text-gray-400 sm:px-10 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+            disabled={isLoading}
+            sx={{
+              minWidth: 120,
+              color: 'text.secondary',
+              borderColor: 'divider',
+            }}
           >
             إلغاء
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="contained"
             disabled={isLoading}
-            className="w-full sm:w-auto px-10 py-2.5 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-brand-primary border border-transparent rounded-lg active:bg-brand-primary hover:bg-brand-primary/90 focus:outline-none disabled:opacity-50"
+            sx={{
+              minWidth: 160,
+              fontWeight: 900,
+            }}
           >
             {isLoading ? 'جاري الحفظ...' : 'حفظ البيانات'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button, CircularProgress } from '@mui/material';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -29,10 +30,41 @@ const LoginPage = () => {
     const loadingToast = toast.loading('جاري التحقق من البيانات...');
 
     try {
-      await authService.login(data);
+      const result = await authService.login(data);
 
-      toast.success('تم تسجيل الدخول بنجاح');
-      navigate('/dashboard', { replace: true });
+      // Check for isVerified in different possible locations
+      const isVerified = result.isVerified === false || result.data?.isVerified === false || result.user?.isVerified === false;
+
+      if (!result.access_token && isVerified) {
+        // Search in all possible locations for id, including the new 'adminId'
+        const userId = result.adminId || result.data?.adminId || result.user?.adminId || result.id || result.user?.id || result.data?.id || result.data?.user?.id;
+
+        if (!userId) {
+          console.error('Could not find userId in:', result);
+          toast.error('خطأ: لم يتم العثور على معرف المستخدم في الرد');
+          return;
+        }
+
+        toast.success('يرجى إنشاء كلمة مرور جديدة لحسابك');
+        navigate('/create-password', {
+          state: {
+            email: data.email,
+            userId: userId
+          },
+          replace: true
+        });
+        return;
+      }
+
+      // 2. Case: Successful login with token
+      if (result.access_token) {
+        toast.success('تم تسجيل الدخول بنجاح');
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+
+      // 3. Fallback: Success response but no token and not handled above
+      toast.error('حدث خطأ في استلام صلاحيات الدخول، يرجى التواصل مع الدعم');
 
     } catch (error) {
       console.error('Login Error:', error);
@@ -123,14 +155,21 @@ const LoginPage = () => {
                 </div>
 
                 {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
+                  fullWidth
+                  variant="contained"
                   disabled={isLoading}
-                  className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2.5 rounded-lg text-sm text-white bg-brand-primary border border-transparent active:bg-brand-primary hover:opacity-95 focus:ring focus:ring-brand-primary/30 w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                  sx={{
+                    py: 1.5,
+                    fontSize: '1rem',
+                    fontWeight: 900,
+                    mt: 2
+                  }}
                 >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin ml-2" /> : null}
-                  تسجيل الدخول
-                </button>
+                  {isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'}
+                </Button>
               </form>
 
               <div className="relative my-8">

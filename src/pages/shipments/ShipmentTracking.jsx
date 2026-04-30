@@ -54,7 +54,7 @@ export const ShipmentTracking = () => {
           </button>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-black text-gray-800 dark:text-white leading-tight">تتبع الشحنة</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">تتبع الشحنة</h2>
               <Chip 
                 label={shipment.id} 
                 className="!bg-brand-primary !text-white !font-black !px-2" 

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   X, Home, Users, ShieldCheck, Globe,
   FileText, MessageSquare, LayoutGrid, Settings,
-  ChevronDown, User, Truck, Building, Package
+  ChevronDown, User, Truck, Building, Package, UserPlus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -58,24 +58,33 @@ const SidebarItem = ({ to, icon: Icon, label, active, onClick, subItems, pathnam
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden bg-gray-50/50 dark:bg-gray-800/50 shadow-inner"
+              className="overflow-hidden bg-gray-100/70 dark:bg-gray-900/60 py-2 relative"
             >
+              {/* Vertical line indicator */}
+              <div className="absolute right-[31px] top-0 bottom-0 w-[1.5px] bg-gray-100 dark:bg-gray-800/50" />
+
               {subItems.map((sub) => {
-                const isSubActive = pathname === sub.to || (pathname + location.search) === sub.to;
-                // Since we use query params, we need to match carefully
-                const currentFull = pathname + window.location.search;
-                const activeMatch = currentFull === sub.to;
+                const activeMatch = pathname === sub.to;
 
                 return (
-                  <li key={sub.to}>
+                  <li key={sub.to} className="relative">
                     <Link
                       to={sub.to}
                       onClick={onClick}
-                      className={`flex items-center w-full px-12 py-2 text-xs font-bold transition-all duration-150 hover:text-brand-primary ${activeMatch ? 'text-brand-primary' : 'text-gray-400'
+                      className={`flex items-center w-full pr-12 pl-4 py-2.5 text-[11px] font-black transition-all duration-200 group relative ${activeMatch
+                        ? 'text-brand-primary'
+                        : 'text-gray-400 hover:text-brand-primary'
                         }`}
                     >
-                      <sub.icon className="w-3.5 h-3.5 ml-3 opacity-60" />
-                      {sub.label}
+                      {/* Active indicator dot */}
+                      <div className={`absolute right-[28px] top-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full border-2 border-white dark:border-gray-800 transition-all duration-300 z-10 ${activeMatch ? 'bg-brand-primary scale-110' : 'bg-gray-200 dark:bg-gray-700 group-hover:bg-brand-primary/50'
+                        }`} />
+
+                      <sub.icon className={`w-3.5 h-3.5 ml-3 transition-all duration-300 ${activeMatch ? 'opacity-100 scale-110' : 'opacity-40 group-hover:opacity-100 group-hover:scale-110'
+                        }`} />
+                      <span className="tracking-wide uppercase">{sub.label}</span>
+
+
                     </Link>
                   </li>
                 );
@@ -91,9 +100,18 @@ const SidebarItem = ({ to, icon: Icon, label, active, onClick, subItems, pathnam
 const SidebarContent = ({ pathname, onLinkClick }) => {
   const menuItems = [
     { to: '/dashboard', icon: Home, label: 'لوحة التحكم' },
-    { to: '/users', icon: Users, label: 'إدارة المستخدمين' },
+    {
+      icon: Users,
+      label: 'إدارة الحسابات',
+      to: '/users-group', // Dummy path for parent activation logic
+      subItems: [
+        { to: '/admins', icon: ShieldCheck, label: 'الموظفين' },
+        { to: '/users', icon: User, label: 'المستخدمين' },
+        { to: '/verification', icon: Truck, label: 'توثيق السائقين' },
+        { to: '/users/add-manager', icon: UserPlus, label: 'إضافة مدير' },
+      ]
+    },
     { to: '/shipments', icon: Package, label: 'إدارة الشحنات' },
-    { to: '/verification', icon: ShieldCheck, label: 'توثيق السائقين' },
     { to: '/operations', icon: Globe, label: 'إدارة المنصة' },
     { to: '/reports', icon: FileText, label: 'التقارير والإحصائيات' },
     { to: '/disputes', icon: MessageSquare, label: 'النزاعات والشكاوى' },
@@ -115,7 +133,7 @@ const SidebarContent = ({ pathname, onLinkClick }) => {
             <SidebarItem
               {...item}
               pathname={pathname}
-              active={pathname.startsWith(item.to)}
+              active={pathname.startsWith(item.to) || (item.subItems && item.subItems.some(sub => pathname === sub.to))}
               onClick={onLinkClick}
             />
           </li>

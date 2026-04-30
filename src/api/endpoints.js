@@ -1,16 +1,18 @@
 export const API_ENDPOINTS = {
     AUTH: {
         LOGIN: '/admins/login',
-        FORGOT_PASSWORD: '/auth/forgot-password',
-        VERIFY_RESET_CODE: '/auth/verify-reset-code',
-        RESEND_CODE: '/auth/resend-verification-code',
-        RESET_PASSWORD: '/auth/reset-password',
-        LOGOUT: '/auth/logout',
+        FORGOT_PASSWORD: '/admins/forgot-password',
+        VERIFY_RESET_CODE: '/admins/verify-reset-code',
+        RESEND_CODE: '/admins/resend-verification-code',
+        RESET_PASSWORD: '/admins/reset-password',
+        LOGOUT: '/admins/logout',
     },
-    USER: {
-        PROFILE: '/users/me',
-        // In case update profile is needed, often same as /users/me with PUT/PATCH
-        UPDATE_PROFILE: '/users/me',
+    ADMIN: {
+        PROFILE: '/admins/me',
+        LIST: '/admins/all',
+        CREATE: '/admins/create',
+        RESEND_OTP: (id) => `/admins/resend-otp/${id}`,
+        ACTIVATE: '/admins/activate',
     },
     DASHBOARD: {
         ALL_USERS: '/dashboard/users',
@@ -18,5 +20,3 @@ export const API_ENDPOINTS = {
         UPDATE_USER_STATUS: (id) => `/dashboard/${id}/user/status`,
     },
 };
-
-

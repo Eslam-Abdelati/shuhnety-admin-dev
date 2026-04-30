@@ -5,11 +5,13 @@ import {
   User, Mail, Phone, MapPin, Calendar,
   Truck, ShieldCheck, FileText, ExternalLink,
   MessageSquare, History, Ban, UserCheck,
-  CreditCard, Award, Zap, Camera, Star
+  CreditCard, Award, Zap, Camera, Star, Printer
 } from 'lucide-react';
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Divider, CircularProgress } from '@mui/material';
+import { Button, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Divider, CircularProgress } from '@mui/material';
+import { Edit } from 'lucide-react';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
+import { getStatusConfig } from '../../utils/userConstants';
 
 export const UserDetails = () => {
   const { id } = useParams();
@@ -105,17 +107,17 @@ export const UserDetails = () => {
     let targetStatus = '';
     if (openActionDialog === 'approve') targetStatus = 'approved';
     else if (openActionDialog === 'reject' || openActionDialog === 'block') targetStatus = 'rejected';
-    
+
     if (!targetStatus) return;
 
     try {
       setIsLoading(true);
       await userService.updateUserStatus(id, targetStatus, actionReason);
       toast.success(targetStatus === 'approved' ? 'تم توثيق الحساب بنجاح' : 'تم رفض الحساب بنجاح');
-      
+
       setOpenActionDialog(null);
       setActionReason('');
-      
+
       // Refresh user data
       await fetchUser();
     } catch (error) {
@@ -137,190 +139,219 @@ export const UserDetails = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12 max-w-[1400px] mx-auto">
-      {/* Top Navigation & Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
+      {/* Top Navigation & Header - Navbar Style */}
+      <div className="top-0 z-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-100 dark:border-gray-700 rounded-[2rem] p-4 mb-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4 px-2">
           <div>
-            <h2 className="text-2xl font-black text-gray-800 dark:text-white leading-tight">
-              {user.role === 'driver' ? 'ملف الكابتن' : 
-               user.role === 'admin' ? 'ملف المدير' : 'ملف المستخدم'}
-            </h2>
-            <div className="flex items-center gap-2.5 mt-1">
-              <Chip
-                label={user.status}
-                size="small"
-                className={`!font-black !text-[10px] !rounded-lg ${user.status === 'موثق' || user.status === 'نشط' ? 'bg-emerald-50 text-emerald-600' :
-                  user.status === 'قيد المراجعة' ? 'bg-orange-50 text-orange-600' : 'bg-rose-50 text-rose-600'
-                  }`}
-              />
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-black text-gray-800 dark:text-white leading-tight">
+                {user.role === 'driver' ? 'ملف الكابتن' :
+                  user.role === 'admin' ? 'ملف المدير' : 'ملف المستخدم'}
+              </h2>
+              {(() => {
+                const config = getStatusConfig(user.status);
+                const StatusIcon = config.icon;
+                return (
+                  <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-black ${config.color}`}>
+                    <StatusIcon className={`w-3 h-3 ${config.iconColor}`} />
+                    {config.label}
+                  </div>
+                );
+              })()}
             </div>
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">{user.name}</p>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {/* Print Button */}
+          <Button
+            size="small"
+            onClick={() => window.print()}
+            className="!text-gray-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+            startIcon={<Printer className="w-3.5 h-3.5" />}
+          >
+            طباعة
+          </Button>
 
-          {user.role === 'driver' && (
+          {/* Edit Button - No Background */}
+          <Button
+            size="small"
+            className="!text-blue-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+            startIcon={<Edit className="w-3.5 h-3.5" />}
+          >
+            تعديل
+          </Button>
+
+          {/* Action Buttons - Pure Text */}
+          {user.status === 'pending' && (
             <Button
-              variant="contained"
-              className="!rounded-2xl !bg-brand-primary !text-white !font-black !px-8 !py-3 !text-sm hover:!opacity-90"
+              size="small"
+              className="!text-emerald-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
               onClick={() => setOpenActionDialog('approve')}
-              startIcon={<UserCheck className="w-4 h-4 ml-2" />}
+              startIcon={<UserCheck className="w-3.5 h-3.5" />}
             >
-              توثيق الحساب
+              توثيق
             </Button>
           )}
+
+          <Button
+            size="small"
+            className="!text-orange-500 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+            onClick={() => setOpenActionDialog('reject')}
+            startIcon={<AlertCircle className="w-3.5 h-3.5" />}
+          >
+            رفض
+          </Button>
+
+          <Button
+            size="small"
+            className="!text-rose-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+            onClick={() => setOpenActionDialog('block')}
+            startIcon={<Ban className="w-3.5 h-3.5" />}
+          >
+            حظر
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        {/* Left Column - Fixed Side Card */}
-        <div className="lg:col-span-4 space-y-8">
-          {/* Main Identity Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-brand-primary/5 to-transparent" />
-            <div className="relative">
-              <div className="inline-block p-1 bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl mb-6">
-                <div className="w-32 h-32 rounded-[1.8rem] bg-brand-primary/10 flex items-center justify-center text-4xl font-black text-brand-primary border-2 border-brand-primary/5 overflow-hidden">
-                  {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : user.name.charAt(0)}
-                </div>
+      <div className="flex flex-col gap-8">
+        {/* 1. Main Identity Card - Full Width Header */}
+        <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-brand-primary/5 to-transparent" />
+          <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8">
+            <div className="p-1 bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl">
+              <div className="w-32 h-32 rounded-[1.8rem] bg-brand-primary/10 flex items-center justify-center text-4xl font-black text-brand-primary border-2 border-brand-primary/5 overflow-hidden">
+                {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : user.name.charAt(0)}
               </div>
-              <h3 className="text-xl font-black text-gray-800 dark:text-white mb-1">{user.name}</h3>
-              <p className="text-xs text-gray-400 font-bold mb-6">عضو منذ {user.joinedDate}</p>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl">
-                  <p className="text-[9px] font-black text-gray-400 uppercase mb-1">{user.role === 'driver' ? 'الرحلات' : 'الشحنات'}</p>
-                  <p className="text-lg font-black text-gray-800 dark:text-white">{user.vehicleInfo.tripsCount}</p>
+            <div className="flex-1 text-center md:text-right">
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">{user.name}</h3>
+                <p className="text-sm text-gray-400 font-bold">عضو منذ {user.joinedDate}</p>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto md:mr-0">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100/50">
+                  <p className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-widest">{user.role === 'driver' ? 'الرحلات' : 'الشحنات'}</p>
+                  <p className="text-xl font-black text-gray-800 dark:text-white leading-none">{user.vehicleInfo.tripsCount}</p>
                 </div>
                 {user.role === 'driver' && (
                   <>
-                    <div className="p-3.5 bg-amber-50 dark:bg-amber-900/10 rounded-2xl">
-                      <p className="text-[9px] font-black text-amber-600/60 uppercase mb-1">التقييم</p>
-                      <div className="flex items-center justify-center gap-1">
-                        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                        <p className="text-lg font-black text-gray-800 dark:text-white">{user.vehicleInfo.rating}</p>
+                    <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50">
+                      <p className="text-[10px] font-black text-amber-600/60 uppercase mb-1 tracking-widest">التقييم</p>
+                      <div className="flex items-center justify-center md:justify-start gap-1">
+                        <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                        <p className="text-xl font-black text-gray-800 dark:text-white leading-none">{user.vehicleInfo.rating}</p>
                       </div>
                     </div>
-                    <div className="p-3.5 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl">
-                      <p className="text-[9px] font-black text-emerald-600/60 uppercase mb-1">الأرباح</p>
-                      <p className="text-lg font-black text-gray-800 dark:text-white">{user.vehicleInfo.earnings}</p>
+
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50">
+                      <p className="text-[10px] font-black text-blue-600/60 uppercase mb-1 tracking-widest">عدد التقيمات</p>
+                      <p className="text-xl font-black text-gray-800 dark:text-white leading-none">{user.vehicleInfo.reviewsCount}</p>
                     </div>
-                    <div className="p-3.5 bg-blue-50 dark:bg-blue-900/10 rounded-2xl">
-                      <p className="text-[9px] font-black text-blue-600/60 uppercase mb-1">التقييمات</p>
-                      <p className="text-lg font-black text-gray-800 dark:text-white">{user.vehicleInfo.reviewsCount}</p>
+
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50">
+                      <p className="text-[10px] font-black text-emerald-600/60 uppercase mb-1 tracking-widest">الأرباح</p>
+                      <p className="text-xl font-black text-gray-800 dark:text-white leading-none font-mono">{user.vehicleInfo.earnings}</p>
                     </div>
+
                   </>
                 )}
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Quick Stats Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
-            <h4 className="font-black text-gray-800 dark:text-white mb-6 flex items-center gap-3">
+        {/* 2. Performance Metrics */}
+        <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+          <h4 className="font-black text-gray-800 dark:text-white mb-8 flex items-center gap-3">
+            <div className="p-2 bg-brand-primary/10 rounded-lg">
               <Zap className="w-5 h-5 text-brand-primary" />
-              أداء {user.role === 'driver' ? 'السائق' : 'المستخدم'}
-            </h4>
-            <div className="space-y-5">
-              <StatItem label="نسبة القبول" value="98%" progress={98} color="emerald" />
-              <StatItem label="الالتزام بالمواعيد" value="92%" progress={92} color="brand" />
-              <StatItem label="إلغاء الرحلات" value="2%" progress={2} color="rose" />
             </div>
-          </div>
-
-          {/* Admin Actions Container */}
-          <div className="bg-rose-50/50 dark:bg-rose-900/5 rounded-[2.5rem] border border-rose-100/50 dark:border-rose-900/20 p-8">
-            <h4 className="font-black text-rose-600 mb-6 flex items-center gap-3">
-              <Ban className="w-5 h-5" />
-              منطقة الإدارة
-            </h4>
-            <div className="space-y-5">
-              <Button
-                fullWidth
-                className="!py-3 !mb-2 !rounded-2xl !bg-white dark:!bg-gray-800 !text-orange-600 !font-black hover:!bg-orange-50 !border !border-orange-100 !shadow-none"
-                onClick={() => setOpenActionDialog('reject')}
-              >
-                رفض/تعليق الحساب
-              </Button>
-              <Button
-                fullWidth
-                className="!py-3 !rounded-2xl !bg-rose-600 !text-white !font-black hover:!bg-rose-700 !shadow-lg shadow-rose-600/20"
-                onClick={() => setOpenActionDialog('block')}
-              >
-                حظر الحساب نهائياً
-              </Button>
-            </div>
+            مؤشرات الأداء {user.role === 'driver' ? 'للكابتن' : 'للمستخدم'}
+          </h4>
+          <div className="flex flex-col gap-8 max-w-4xl">
+            <StatItem label="نسبة القبول" value="98%" progress={98} color="emerald" />
+            <StatItem label="الالتزام بالمواعيد" value="92%" progress={92} color="brand" />
+            <StatItem label="إلغاء الرحلات" value="2%" progress={2} color="rose" />
           </div>
         </div>
 
-        {/* Right Column - Main Data Sections */}
-        <div className="lg:col-span-8 space-y-8">
-
-          {/* 1. Basic Information */}
-          <SectionCard icon={User} title="البيانات الشخصية">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <InfoBox icon={User} label="الاسم الكامل" value={user.name} />
-              <InfoBox icon={Mail} label="البريد الإلكتروني" value={user.email} />
-              <InfoBox icon={Phone} label="رقم الجوال" value={user.phone} />
-              <InfoBox icon={Calendar} label="تاريخ الميلاد" value={user.birthDate} />
-              <InfoBox icon={CreditCard} label="رقم البطاقة الشخصية" value={user.idNumber} />
-              <InfoBox
-                icon={MapPin}
-                label="العنوان"
-                value={`${user.governorate} - ${user.city} - ${user.address}`}
-                fullWidth
-              />
-            </div>
-          </SectionCard>
-
-          {/* 2. Identity Documents */}
-          {user.role === 'driver' && (
-            <>
-              <SectionCard icon={Camera} title="مستندات الهوية (البطاقة)">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <ImagePreview label="وجه البطاقة" src={user.idDocs.front} />
-                  <ImagePreview label="ظهر البطاقة" src={user.idDocs.back} />
-                </div>
-              </SectionCard>
-
-              {/* 3. License Information */}
-              <SectionCard icon={Award} title="بيانات رخصة القيادة">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                  <InfoBox icon={FileText} label="رقم الرخصة" value={user.licenseInfo.number} />
-                  <InfoBox icon={Calendar} label="تاريخ انتهاء الرخصة" value={user.licenseInfo.expiryDate} highlight />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <ImagePreview label="وجه الرخصة" src={user.licenseInfo.front} />
-                  <ImagePreview label="ظهر الرخصة" src={user.licenseInfo.back} />
-                </div>
-              </SectionCard>
-
-              {/* 4. Vehicle Information */}
-              <SectionCard icon={Truck} title="بيانات المركبة">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-                  <InfoBox icon={Truck} label="نوع المركبة" value={user.vehicleInfo.type} />
-                  <InfoBox icon={Truck} label="الماركة" value={user.vehicleInfo.brand} />
-                  <InfoBox icon={Truck} label="الموديل" value={user.vehicleInfo.model} />
-                  <InfoBox icon={Truck} label="اللون" value={user.vehicleInfo.color} />
-                  <InfoBox icon={ShieldCheck} label="رقم اللوحة" value={user.vehicleInfo.plateNumber} />
-                  <InfoBox icon={Calendar} label="تاريخ انتهاء رخصة المركبة" value={user.vehicleInfo.expiryDate} highlight />
-                </div>
-                <div className="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-[2rem] border border-gray-100 dark:border-gray-700">
-                  <h5 className="text-xs font-black text-gray-400 uppercase mb-6 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    رخصة المركبة
-                  </h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <ImagePreview label="وجه رخصة المركبة" src={user.vehicleInfo.licenseFront} />
-                    <ImagePreview label="ظهر رخصة المركبة" src={user.vehicleInfo.licenseBack} />
+        {/* 3. Basic Information */}
+        <SectionCard icon={User} title="البيانات الشخصية">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <InfoBox icon={User} label="الاسم الكامل" value={user.name} />
+            <InfoBox icon={Mail} label="البريد الإلكتروني" value={user.email} />
+            <InfoBox icon={Phone} label="رقم الجوال" value={user.phone} />
+            <InfoBox icon={Calendar} label="تاريخ الميلاد" value={user.birthDate} />
+            <InfoBox icon={CreditCard} label="رقم البطاقة الشخصية" value={user.idNumber} />
+            <InfoBox
+              icon={ShieldCheck}
+              label="حالة الحساب"
+              value={(() => {
+                const config = getStatusConfig(user.status);
+                const StatusIcon = config.icon;
+                return (
+                  <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${config.color}`}>
+                    <StatusIcon className={`w-4 h-4 ${config.iconColor}`} />
+                    {config.label}
                   </div>
-                </div>
-              </SectionCard>
-            </>
-          )}
+                );
+              })()}
+            />
+            <InfoBox
+              icon={MapPin}
+              label="العنوان"
+              value={`${user.governorate} - ${user.city} - ${user.address}`}
+              fullWidth
+            />
+          </div>
+        </SectionCard>
 
-        </div>
+        {/* 4. Driver Specific Sections */}
+        {user.role === 'driver' && (
+          <>
+            <SectionCard icon={Camera} title="مستندات الهوية (البطاقة)">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <ImagePreview label="وجه البطاقة" src={user.idDocs.front} />
+                <ImagePreview label="ظهر البطاقة" src={user.idDocs.back} />
+              </div>
+            </SectionCard>
+
+            <SectionCard icon={Award} title="بيانات رخصة القيادة">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-8">
+                <InfoBox icon={FileText} label="رقم الرخصة" value={user.licenseInfo.number} />
+                <InfoBox icon={Calendar} label="تاريخ انتهاء الرخصة" value={user.licenseInfo.expiryDate} highlight />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <ImagePreview label="وجه الرخصة" src={user.licenseInfo.front} />
+                <ImagePreview label="ظهر الرخصة" src={user.licenseInfo.back} />
+              </div>
+            </SectionCard>
+
+            <SectionCard icon={Truck} title="بيانات المركبة">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-10">
+                <InfoBox icon={Truck} label="نوع المركبة" value={user.vehicleInfo.type} />
+                <InfoBox icon={Truck} label="الماركة والموديل" value={`${user.vehicleInfo.brand} - ${user.vehicleInfo.model}`} />
+                <InfoBox icon={ShieldCheck} label="رقم اللوحة" value={user.vehicleInfo.plateNumber} />
+                <InfoBox icon={Truck} label="اللون" value={user.vehicleInfo.color} />
+                <InfoBox icon={Calendar} label="تاريخ انتهاء رخصة المركبة" value={user.vehicleInfo.expiryDate} highlight />
+              </div>
+              <div className="p-8 bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] border border-gray-100 dark:border-gray-700">
+                <h5 className="text-[11px] font-black text-gray-400 uppercase mb-8 flex items-center gap-2 tracking-widest">
+                  <FileText className="w-4 h-4" />
+                  صور رخصة المركبة
+                </h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <ImagePreview label="وجه رخصة المركبة" src={user.vehicleInfo.licenseFront} />
+                  <ImagePreview label="ظهر رخصة المركبة" src={user.vehicleInfo.licenseBack} />
+                </div>
+              </div>
+            </SectionCard>
+          </>
+        )}
       </div>
 
       {/* Action Dialog */}
@@ -397,9 +428,10 @@ const InfoBox = ({ icon: Icon, label, value, highlight, fullWidth }) => (
     </div>
     <div>
       <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{label}</p>
-      <p className={`text-sm font-black tracking-tight ${highlight ? 'text-orange-600' : 'text-gray-800 dark:text-white'}`}>
-        {value && typeof value === 'object' ? (value.name_ar || value.name || JSON.stringify(value)) : (value || '—')}
-      </p>
+      <div className={`text-sm font-black tracking-tight ${highlight ? 'text-orange-600' : 'text-gray-800 dark:text-white'}`}>
+        {React.isValidElement(value) ? value :
+          (value && typeof value === 'object' ? (value.name_ar || value.name || JSON.stringify(value)) : (value || '—'))}
+      </div>
     </div>
   </div>
 );
@@ -410,7 +442,10 @@ const ImagePreview = ({ label, src }) => (
     <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden border-2 border-gray-100 dark:border-gray-700 shadow-sm bg-gray-100 dark:bg-gray-900 group-hover:border-brand-primary transition-all duration-300">
       <img src={src} alt={label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
-        <button className="p-3 bg-white rounded-2xl text-gray-800 font-black text-xs flex items-center gap-2 shadow-xl active:scale-95 transition-transform">
+        <button
+          onClick={() => window.open(src, '_blank')}
+          className="p-3 bg-white rounded-2xl text-gray-800 font-black text-xs flex items-center gap-2 shadow-xl active:scale-95 transition-transform hover:bg-gray-50"
+        >
           <ExternalLink className="w-4 h-4" /> عرض بحجم كامل
         </button>
       </div>

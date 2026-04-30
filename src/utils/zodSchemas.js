@@ -36,10 +36,5 @@ export const managerSchema = z.object({
   email: emailSchema,
   phone: phoneSchema,
   role: z.string(),
-  permissions: z.object({
-    manage_users: z.boolean(),
-    manage_shipments: z.boolean(),
-    view_reports: z.boolean(),
-    manage_settings: z.boolean(),
-  })
+  address: z.string().optional(),
 });

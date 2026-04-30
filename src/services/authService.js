@@ -27,6 +27,7 @@ export const authService = {
                 access_token: token,
                 user: user,
                 role: role,
+                isVerified: response.data?.isVerified ?? dataRoot?.isVerified,
                 full_name: (user?.full_name || response.data?.full_name || dataRoot?.full_name)
             };
         } catch (error) {
@@ -114,6 +115,18 @@ export const authService = {
         }
     },
 
+
+    /**
+     * تفعيل حساب المدير وإنشاء كلمة المرور
+     */
+    activateAdmin: async (activationData) => {
+        try {
+            const response = await axiosClient.post(API_ENDPOINTS.ADMIN.ACTIVATE, activationData);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.response?.data?.message || 'فشل تفعيل الحساب');
+        }
+    },
 
     /**
      * Logout user

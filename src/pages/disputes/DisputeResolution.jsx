@@ -140,11 +140,10 @@ export const DisputeResolution = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight flex items-center gap-3">
-             <ShieldAlert className="w-8 h-8 text-rose-500" />
-             مركز حل النزاعات والشكاوى
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-3">
+            النزاعات والشكاوى
           </h2>
-          <p className="text-sm text-gray-400 font-medium mt-1">إدارة البلاغات وحل المشاكل بين العملاء والسائقين لضمان عدالة المنصة</p>
+          <p className="text-sm text-gray-400 font-medium mt-1">إدارة وحل المشكلات المتعلقة بالشحنات والتعاملات بين المستخدمين</p>
         </div>
       </div>
 

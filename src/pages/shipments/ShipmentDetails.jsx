@@ -4,7 +4,7 @@ import {
   ArrowRight, Package, MapPin, Calendar, 
   User, Truck, CreditCard, Clock, 
   Map as MapIcon, ShieldCheck, Info,
-  CheckCircle, XCircle, AlertTriangle, Edit
+  CheckCircle, XCircle, AlertTriangle, Edit, Printer
 } from 'lucide-react';
 import { Button, Divider, Chip, Avatar, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
@@ -65,7 +65,7 @@ export const ShipmentDetails = () => {
           </button>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-black text-gray-800 dark:text-white leading-tight">تفاصيل الشحنة</h2>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">تفاصيل الشحنة</h2>
               <Chip 
                 label={shipment.id} 
                 className="!bg-brand-primary/10 !text-brand-primary !font-black" 
@@ -75,22 +75,33 @@ export const ShipmentDetails = () => {
             <p className="text-sm text-gray-400 font-medium mt-1">عرض ومراجعة كافة بيانات العمليات والتحكم بها</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+           {/* Print Button */}
+           <Button
+             size="small"
+             onClick={() => window.print()}
+             className="!text-gray-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+             startIcon={<Printer className="w-3.5 h-3.5 ml-1" />}
+           >
+             طباعة
+           </Button>
+
            <Button 
-             variant="outlined" 
+             size="small"
              onClick={() => setOpenStatusDialog(true)}
-             className="!rounded-xl !border-gray-200 !text-gray-500 hover:!bg-gray-50 !font-bold"
-             startIcon={<Edit className="w-4 h-4 ml-1" />}
+             className="!text-gray-500 !font-bold !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+             startIcon={<Edit className="w-3.5 h-3.5 ml-1" />}
            >
              تغيير الحالة (Admin)
            </Button>
            <Button 
+             size="small"
              component={Link}
              to={`/shipments/track/${shipment.id}`}
-             className="!bg-brand-primary !text-white !rounded-xl !px-6 !py-2.5 !font-black shadow-lg"
-             startIcon={<MapIcon className="w-4 h-4 ml-1" />}
+             className="!text-brand-primary !font-black !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+             startIcon={<MapIcon className="w-3.5 h-3.5 ml-1" />}
            >
-             تتبع الشحنة الآن
+             تتبع الشحنة
            </Button>
         </div>
       </div>

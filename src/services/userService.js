@@ -8,6 +8,7 @@ export const userService = {
   getAllUsers: async (filters = {}) => {
     try {
       const response = await axiosClient.post(API_ENDPOINTS.DASHBOARD.ALL_USERS, filters);
+      console.log('API Response (All Users):', response.data);
       return response.data?.data || response.data;
     } catch (error) {
       console.error('Error fetching all users:', error);
@@ -39,6 +40,47 @@ export const userService = {
     } catch (error) {
       console.error(`Error updating user ${id} status:`, error);
       throw new Error(error.response?.data?.message || 'فشل في تحديث حالة المستخدم');
+    }
+  },
+
+  /**
+   * Get current admin profile
+   */
+  getAdminProfile: async () => {
+    try {
+      const response = await axiosClient.get(API_ENDPOINTS.ADMIN.PROFILE);
+      console.log('API Response (Admin Profile):', response.data);
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error('Error fetching admin profile:', error);
+      throw new Error(error.response?.data?.message || 'فشل في جلب بيانات الملف الشخصي للمدير');
+    }
+  },
+
+  /**
+   * Get all admins
+   */
+  getAllAdmins: async () => {
+    try {
+      const response = await axiosClient.post(API_ENDPOINTS.ADMIN.LIST);
+      console.log('API Response (All Admins):', response.data);
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+      throw new Error(error.response?.data?.message || 'فشل في جلب قائمة المديرين');
+    }
+  },
+
+  /**
+   * Resend activation OTP to admin
+   */
+  resendAdminOTP: async (adminId) => {
+    try {
+      const response = await axiosClient.patch(API_ENDPOINTS.ADMIN.RESEND_OTP(adminId));
+      return response.data;
+    } catch (error) {
+      console.error(`Error resending OTP for admin ${adminId}:`, error);
+      throw new Error(error.response?.data?.message || 'فشل في إعادة إرسال رمز التفعيل');
     }
   }
 };

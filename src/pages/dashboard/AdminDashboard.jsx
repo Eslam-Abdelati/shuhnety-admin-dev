@@ -93,8 +93,8 @@ export const AdminDashboard = () => {
 
   return (
     <div className="w-full max-w-full overflow-x-hidden space-y-6 pb-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-200">لوحة الإدارة الرئيسية</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">لوحة الإدارة الرئيسية</h2>
         <Button
           variant="contained"
           onClick={() => navigate('/users/add-manager')}

@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
-import { authService } from '../../services/authService';
+import { userService } from '../../services/userService';
 import Cookies from 'js-cookie';
 
 // Profile Schema
@@ -31,21 +31,21 @@ const ProfilePage = () => {
   } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.full_name || user?.name || '',
-      email: user?.email || '',
-      phone: user?.phone || '',
+      name: '',
+      email: '',
+      phone: '',
     }
   });
 
   useEffect(() => {
     const fetchFreshProfile = async () => {
       try {
-        const freshData = await authService.getProfile();
+        const freshData = await userService.getAdminProfile();
         setUser(freshData);
         reset({
-          name: freshData.full_name || freshData.name || '',
+          name: freshData.full_name || '',
           email: freshData.email || '',
-          phone: freshData.phone || '',
+          phone: freshData.phone_number || '',
         });
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -58,11 +58,11 @@ const ProfilePage = () => {
     setIsLoading(true);
     const loadingToast = toast.loading('جاري تحديث البيانات...');
     
-    // Simulate API call for update (as we don't have the endpoint yet)
+    // Simulate API call for update
     setTimeout(() => {
       setIsLoading(false);
       setIsEditing(false);
-      setUser(prev => ({ ...prev, ...data, full_name: data.name }));
+      setUser(prev => ({ ...prev, ...data, full_name: data.name, phone_number: data.phone }));
       toast.dismiss(loadingToast);
       toast.success('تم تحديث الملف الشخصي بنجاح');
     }, 1500);
@@ -90,11 +90,11 @@ const ProfilePage = () => {
           {/* User Basic Info */}
           <div className="text-center md:text-right flex-1">
             <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
-              <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-                {user?.full_name || user?.name || 'أدمن النظام'}
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                {user?.full_name || 'أدمن النظام'}
               </h1>
               <span className="inline-flex items-center px-3 py-1 bg-brand-primary/10 text-brand-primary text-xs font-bold rounded-full border border-brand-primary/20">
-                مدير النظام
+                {user?.role === 'admin' ? 'مدير النظام' : user?.role || 'عضو'}
               </span>
             </div>
             <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center md:justify-start gap-2">
@@ -188,7 +188,7 @@ const ProfilePage = () => {
                 <label className="text-sm font-bold text-gray-700 dark:text-gray-400">تاريخ الانضمام</label>
                 <div className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 text-sm font-medium text-gray-500 flex items-center gap-2">
                    <Clock className="w-4 h-4" />
-                   14 سبتمبر 2023
+                   {user?.createDateTime ? new Date(user.createDateTime).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
                 </div>
               </div>
             </form>

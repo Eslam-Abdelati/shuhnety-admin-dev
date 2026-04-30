@@ -10,6 +10,8 @@ import { Button, MenuItem, IconButton, CircularProgress, Select, FormControl } f
 import { motion } from 'framer-motion';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
+import { getRoleConfig, getStatusConfig } from '../../utils/userConstants';
+import { exportToExcel } from '../../utils/excelExport';
 
 export const AllUsersPage = () => {
   const [data, setData] = useState([]);
@@ -58,6 +60,42 @@ export const AllUsersPage = () => {
     };
   }, [data]);
 
+  const handleExport = async () => {
+    const loadingToast = toast.loading('جاري تحضير كافة بيانات المستخدمين للتصدير...');
+    try {
+      // Fetch all users without filters
+      const response = await userService.getAllUsers({});
+      const allUsers = response?.data || response || [];
+
+      if (allUsers.length === 0) {
+        toast.error('لا توجد بيانات لتصديرها');
+        return;
+      }
+
+      const columns = [
+        { key: 'full_name', header: 'الاسم الكامل' },
+        { key: 'email', header: 'البريد الإلكتروني' },
+        { key: 'phone_number', header: 'رقم الهاتف' },
+        { key: 'roleLabel', header: 'نوع الحساب' },
+        { key: 'statusLabel', header: 'الحالة' },
+        { key: 'dateLabel', header: 'تاريخ التسجيل' },
+      ];
+
+      const exportData = allUsers.map(u => ({
+        ...u,
+        roleLabel: getRoleConfig(u.role).label,
+        statusLabel: getStatusConfig(u.status).label,
+        dateLabel: u.createDateTime ? new Date(u.createDateTime).toLocaleDateString('ar-EG') : '—'
+      }));
+
+      exportToExcel(exportData, `قائمة_المستخدمين`, columns);
+      toast.success('تم تصدير الملف بنجاح', { id: loadingToast });
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('فشل في جلب البيانات للتصدير', { id: loadingToast });
+    }
+  };
+
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i) => ({
@@ -67,19 +105,14 @@ export const AllUsersPage = () => {
     })
   };
 
-  const roleMap = {
-    'client': { label: 'عميل', icon: ShoppingCart, color: 'text-orange-500 bg-orange-50' },
-    'driver': { label: 'كابتن', icon: Truck, color: 'text-emerald-500 bg-emerald-50' },
-    'admin': { label: 'مدير', icon: ShieldCheck, color: 'text-purple-500 bg-purple-50' }
-  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-12">
       {/* Header Area */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-gray-800 dark:text-white uppercase tracking-tight">إدارة المستخدمين</h2>
-          <p className="text-sm text-gray-400 font-medium mt-1">نظرة شاملة وتحكم كامل في كافة حسابات المنصة</p>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">إدارة المستخدمين</h2>
+          <p className="text-sm text-gray-400 font-medium mt-1">عرض وإدارة جميع حسابات العملاء المسجلين في المنصة</p>
         </div>
         <Button className="!rounded-xl !px-8 !py-3 !bg-brand-primary !text-white !font-black hover:!opacity-90 shadow-lg shadow-brand-primary/20 transition-all text-sm">
           إضافة مستخدم جديد
@@ -89,7 +122,7 @@ export const AllUsersPage = () => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard index={0} icon={Users} label="إجمالي المستخدمين" value={stats.total} color="brand" variants={cardVariants} />
-        <StatCard index={1} icon={Truck} label="السائقين" value={stats.drivers} color="emerald" variants={cardVariants} />
+        <StatCard index={1} icon={Truck} label="الكابتن" value={stats.drivers} color="emerald" variants={cardVariants} />
         <StatCard index={2} icon={ShoppingCart} label="العملاء" value={stats.customers} color="orange" variants={cardVariants} />
       </div>
 
@@ -127,16 +160,16 @@ export const AllUsersPage = () => {
             >
               <MenuItem value="all" className="!font-bold !text-xs">كافة المستخدمين</MenuItem>
               <MenuItem value="client" className="!font-bold !text-xs">العملاء</MenuItem>
-              <MenuItem value="driver" className="!font-bold !text-xs">السائقين</MenuItem>
-              <MenuItem value="admin" className="!font-bold !text-xs">المديرين</MenuItem>
+              <MenuItem value="driver" className="!font-bold !text-xs">الكابتن</MenuItem>
             </Select>
 
-            <Button 
-              size="small" 
+            <Button
+              size="small"
+              onClick={handleExport}
               className="!text-gray-600 !font-bold !bg-white dark:!bg-gray-900 !border !border-slate-100 dark:!border-gray-700 !rounded-xl !px-5 !py-2 shadow-sm hover:!bg-gray-50 !text-xs"
               startIcon={<Download className="w-3.5 h-3.5 ml-1" />}
             >
-              تصدير
+              تصدير Excel
             </Button>
           </div>
         </div>
@@ -164,7 +197,7 @@ export const AllUsersPage = () => {
                 </tr>
               ) : data.length > 0 ? (
                 data.map((u) => {
-                  const role = roleMap[u.role] || { label: u.role, icon: User, color: 'text-gray-500 bg-gray-50' };
+                  const role = getRoleConfig(u.role);
                   return (
                     <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-all group">
                       <td className="px-6 py-5">
@@ -193,10 +226,17 @@ export const AllUsersPage = () => {
                         </div>
                       </td> */}
                       <td className="px-6 py-4 text-center">
-                        <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${u.isActive ? 'text-blue-600' : 'text-amber-600'}`}>
-                          <ShieldCheck className={`w-4.5 h-4.5 ${u.isActive ? 'fill-blue-50' : ''}`} />
-                          {u.isActive ? 'موثق' : 'قيد المراجعة'}
-                        </div>
+                        {(() => {
+                          const config = getStatusConfig(u.status);
+                          const StatusIcon = config.icon;
+
+                          return (
+                            <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${config.color}`}>
+                              <StatusIcon className={`w-4.5 h-4.5 ${config.iconColor}`} />
+                              {config.label}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="px-6 py-5 text-xs text-gray-400 font-bold">
                         <div className="flex items-center gap-1.5">

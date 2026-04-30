@@ -11,6 +11,7 @@ import LoginPage from './pages/auth/LoginPage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import VerifyCodePage from './pages/auth/VerifyCodePage';
 import ResetPasswordPage from './pages/auth/ResetPasswordPage';
+import CreatePasswordPage from './pages/auth/CreatePasswordPage';
 
 
 import { AdminDashboard } from './pages/dashboard/AdminDashboard';
@@ -26,6 +27,7 @@ import { SystemSettings } from './pages/settings/SystemSettings';
 import { DisputeResolution } from './pages/disputes/DisputeResolution';
 import { DigitalContracts } from './pages/contracts/DigitalContracts';
 import AddManagerPage from './pages/users/AddManagerPage';
+import AdminsManagementPage from './pages/users/AdminsManagementPage';
 import ProfilePage from './pages/profile/ProfilePage';
 
 function App() {
@@ -38,6 +40,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/verify-code" element={<VerifyCodePage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/create-password" element={<CreatePasswordPage />} />
         </Route>
 
 
@@ -56,6 +59,7 @@ function App() {
             <Route path="users" element={<AllUsersPage />} />
             <Route path="users/details/:id" element={<UserDetails />} />
             <Route path="users/add-manager" element={<AddManagerPage />} />
+            <Route path="admins" element={<AdminsManagementPage />} />
             <Route path="shipments" element={<ShipmentManagement />} />
             <Route path="shipments/details/:id" element={<ShipmentDetails />} />
             <Route path="shipments/track/:id" element={<ShipmentTracking />} />

@@ -24,11 +24,13 @@ const ResetPasswordPage = () => {
   const userId = location.state?.userId;
 
   useEffect(() => {
+    console.log('ResetPasswordPage state:', location.state);
     if (!userId) {
-      toast.error('جلسة استعادة كلمة المرور منتهية');
-      navigate('/forgot-password');
+      console.warn('ResetPasswordPage: No userId found in navigation state');
+      toast.error('يرجى تسجيل الدخول أولاً أو طلب استعادة كلمة المرور');
+      navigate('/login');
     }
-  }, [userId, navigate]);
+  }, [userId, navigate, location.state]);
 
   const {
     register,
