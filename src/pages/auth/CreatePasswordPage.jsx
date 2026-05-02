@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, CircularProgress } from '@mui/material';
-import { Lock, Eye, EyeOff, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Lock, Eye, EyeOff, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,7 +80,7 @@ const CreatePasswordPage = () => {
             <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center mb-6 animate-bounce">
               <ShieldCheck className="w-10 h-10 text-brand-primary" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">أهلاً بك في فريق شحنتي</h2>
+            <h2 className="text-2xl font-black text-gray-800 dark:text-white mb-4 tracking-tight">أهلاً بك في فريق شحنتي</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">بصفتك مديراً جديداً، يرجى تعيين كلمة مرور قوية لحماية حسابك والوصول إلى لوحة التحكم.</p>
             <div className="absolute inset-0 bg-brand-primary/5 mix-blend-multiply -z-10"></div>
           </div>
@@ -97,16 +97,10 @@ const CreatePasswordPage = () => {
                     <h1 className="text-xl font-black text-gray-800 mb-2">بيانات الجلسة مفقودة</h1>
                     <p className="text-sm text-gray-500 leading-relaxed">لم نتمكن من العثور على بيانات المستخدم المطلوبة. يرجى محاولة تسجيل الدخول مرة أخرى.</p>
                   </div>
-                  <button
-                    onClick={() => navigate('/login')}
-                    className="w-full py-3 bg-gray-800 text-white rounded-xl font-bold hover:bg-gray-900 transition-colors"
-                  >
-                    العودة لتسجيل الدخول
-                  </button>
                 </div>
               ) : (
                 <>
-                  <h1 className="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-100 text-right">
+                  <h1 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200 text-right">
                     إنشاء كلمة مرور جديدة
                   </h1>
 
@@ -160,20 +154,30 @@ const CreatePasswordPage = () => {
                       {errors.confirm_password && <p className="text-[10px] text-red-500 font-bold mt-1">{errors.confirm_password.message}</p>}
                     </div>
 
+
                     <Button
                       type="submit"
                       fullWidth
                       variant="contained"
                       disabled={isLoading}
-                      startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                       sx={{
                         py: 1.5,
                         fontSize: '1rem',
                         fontWeight: 900,
-                        mt: 4
+                        mt: 4,
+                        minHeight: '52px',
+                        backgroundColor: '#eb6a1d',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: '#d55d1a',
+                        },
+                        '&.Mui-disabled': {
+                          backgroundColor: '#eb6a1d',
+                          color: 'white',
+                        }
                       }}
                     >
-                      {isLoading ? 'جاري الحفظ...' : 'إنشاء وحفظ كلمة المرور'}
+                      {isLoading ? <CircularProgress size={24} color="inherit" /> : 'إنشاء وحفظ كلمة المرور'}
                     </Button>
                   </form>
                 </>

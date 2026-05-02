@@ -32,7 +32,7 @@ export const authService = {
             };
         } catch (error) {
             console.error('Login error:', error);
-            throw new Error(error.response?.data?.message || 'بيانات الدخول غير صحيحة، يرجى المحاولة مرة أخرى');
+            throw new Error(error.response?.data?.message || 'خطأ في الاتصال بالإنترنت أو الخادم');
         }
     },
 

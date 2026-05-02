@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Loader2, ArrowRight } from 'lucide-react';
+import { Button, CircularProgress } from '@mui/material';
+import { Shield, ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -109,7 +110,7 @@ const VerifyCodePage = () => {
           {/* Form Section */}
           <main className="flex items-center justify-center p-8 sm:p-12 md:w-1/2">
             <div className="w-full">
-              <h1 className="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-100 text-right">
+              <h1 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200 text-right">
                 التحقق من الرمز
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
@@ -142,14 +143,32 @@ const VerifyCodePage = () => {
                 </div>
 
                 {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
+                  fullWidth
+                  variant="contained"
                   disabled={isLoading}
-                  className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2.5 rounded-lg text-sm text-white bg-brand-primary border border-transparent active:bg-brand-primary hover:opacity-95 focus:ring focus:ring-brand-primary/30 w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  sx={{
+                    py: 1.2,
+                    fontSize: '0.875rem',
+                    fontWeight: 700,
+                    mt: 4,
+                    borderRadius: '0.75rem',
+                    textTransform: 'none',
+                    minHeight: '44.5px',
+                    backgroundColor: '#eb6a1d',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: '#d55d1a',
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: '#eb6a1d',
+                      color: 'white',
+                    }
+                  }}
                 >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin ml-2" /> : null}
-                  تأكيد الرمز
-                </button>
+                  {isLoading ? <CircularProgress size={24} color="inherit" /> : 'تأكيد الرمز'}
+                </Button>
               </form>
 
               {/* Resend Code Section */}

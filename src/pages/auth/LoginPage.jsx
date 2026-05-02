@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, CircularProgress } from '@mui/material';
-import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -99,7 +99,7 @@ const LoginPage = () => {
           {/* Form Section */}
           <main className="flex items-center justify-center p-8 sm:p-12 md:w-1/2">
             <div className="w-full">
-              <h1 className="mb-6 text-2xl font-bold text-gray-800 dark:text-gray-100 text-right">
+              <h1 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200 text-right">
                 تسجيل الدخول
               </h1>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
@@ -160,15 +160,26 @@ const LoginPage = () => {
                   fullWidth
                   variant="contained"
                   disabled={isLoading}
-                  startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                   sx={{
-                    py: 1.5,
-                    fontSize: '1rem',
-                    fontWeight: 900,
-                    mt: 2
+                    py: 1.2,
+                    fontSize: '0.875rem',
+                    fontWeight: 700,
+                    mt: 4,
+                    borderRadius: '0.75rem',
+                    textTransform: 'none',
+                    minHeight: '44.5px',
+                    backgroundColor: '#eb6a1d',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: '#d55d1a',
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: '#eb6a1d',
+                      color: 'white',
+                    }
                   }}
                 >
-                  {isLoading ? 'جاري التحقق...' : 'تسجيل الدخول'}
+                  {isLoading ? <CircularProgress size={24} color="inherit" /> : 'تسجيل الدخول'}
                 </Button>
               </form>
 

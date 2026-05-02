@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Loader2, ArrowRight } from 'lucide-react';
+import { Button, CircularProgress } from '@mui/material';
+import { Mail, ArrowRight } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -70,7 +71,7 @@ const ForgotPasswordPage = () => {
           {/* Form Section */}
           <main className="flex items-center justify-center p-8 sm:p-12 md:w-1/2">
             <div className="w-full">
-              <h1 className="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-100 text-right">
+              <h1 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200 text-right">
                 نسيت كلمة المرور
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
@@ -101,27 +102,39 @@ const ForgotPasswordPage = () => {
                 </div>
 
                 {/* Submit Button */}
-                <button
+                <Button
                   type="submit"
+                  fullWidth
+                  variant="contained"
                   disabled={isLoading}
-                  className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2.5 rounded-lg text-sm text-white bg-brand-primary border border-transparent active:bg-brand-primary hover:opacity-95 focus:ring focus:ring-brand-primary/30 w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  sx={{
+                    py: 1.2,
+                    fontSize: '0.875rem',
+                    fontWeight: 700,
+                    mt: 4,
+                    borderRadius: '0.75rem',
+                    textTransform: 'none',
+                    minHeight: '44.5px',
+                    backgroundColor: '#eb6a1d',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: '#d55d1a',
+                    },
+                    '&.Mui-disabled': {
+                      backgroundColor: '#eb6a1d',
+                      color: 'white',
+                    }
+                  }}
                 >
-                  {isLoading ? <Loader2 className="w-5 h-5 animate-spin ml-2" /> : null}
-                  استعادة كلمة المرور
-                </button>
+                  {isLoading ? <CircularProgress size={24} color="inherit" /> : 'استعادة كلمة المرور'}
+                </Button>
               </form>
-
-              <div className="relative my-8">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-                </div>
-              </div>
 
               {/* Footer Links */}
               <div className="space-y-4 pt-4 text-center">
                 <p>
                   <Link
-                    className="text-sm font-bold text-brand-primary hover:underline flex items-center justify-center gap-2"
+                    className="text-sm font-medium text-brand-primary hover:underline"
                     to="/login"
                   >
                     العودة إلي تسجيل الدخول

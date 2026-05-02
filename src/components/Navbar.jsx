@@ -15,7 +15,7 @@ const Navbar = ({
 }) => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
+
   const [user, setUser] = useState(null);
 
   const notificationsRef = useRef(null);
@@ -212,7 +212,7 @@ const Navbar = ({
                 <li>
                   <button
                     onClick={() => authService.logout()}
-                    className="inline-flex items-center w-full px-4 py-3 text-sm font-semibold rounded-xl hover:bg-red-50 text-gray-700 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                    className="inline-flex items-center w-full px-4 py-3 text-sm font-semibold rounded-xl hover:bg-red-50 text-gray-700 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors cursor-pointer"
                   >
                     <LogOut className="w-4 h-4 ml-3" />
                     <span>تسجيل الخروج</span>
