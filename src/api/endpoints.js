@@ -18,5 +18,10 @@ export const API_ENDPOINTS = {
         ALL_USERS: '/dashboard/users',
         USER_DETAILS: (id) => `/dashboard/${id}/user`,
         UPDATE_USER_STATUS: (id) => `/dashboard/${id}/user/status`,
+        SUSPEND_USER: (id) => `/dashboard/${id}/user/suspend`,
+    },
+    NOTIFICATIONS: {
+        GET_USER: '/notifications/getUserNotifications',
+        GET_DETAILS: (id) => `/notifications/${id}`,
     },
 };

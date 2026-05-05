@@ -42,6 +42,19 @@ export const userService = {
       throw new Error(error.response?.data?.message || 'فشل في تحديث حالة المستخدم');
     }
   },
+  
+  /**
+   * Suspend a user by ID
+   */
+  suspendUser: async (id) => {
+    try {
+      const response = await axiosClient.patch(API_ENDPOINTS.DASHBOARD.SUSPEND_USER(id));
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error(`Error suspending user ${id}:`, error);
+      throw new Error(error.response?.data?.message || 'فشل في تعطيل الحساب');
+    }
+  },
 
   /**
    * Get current admin profile
