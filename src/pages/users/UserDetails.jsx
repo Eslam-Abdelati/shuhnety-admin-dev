@@ -8,8 +8,8 @@ import {
   CreditCard, Award, Zap, Camera, Star, Printer,
   Trash2, PowerOff
 } from 'lucide-react';
-import { Button, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Divider, CircularProgress } from '@mui/material';
-import { Edit } from 'lucide-react';
+import { Button, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Divider, CircularProgress, Tooltip } from '@mui/material';
+import { Pencil } from 'lucide-react';
 import { userService } from '../../services/userService';
 import toast from 'react-hot-toast';
 import { getStatusConfig } from '../../utils/userConstants';
@@ -21,6 +21,22 @@ export const UserDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [actionReason, setActionReason] = useState('');
   const [openActionDialog, setOpenActionDialog] = useState(null); // 'approve' | 'reject' | 'block'
+
+  const DEFAULT_REASONS = {
+    approve: 'مبارك لك، تم تفعيل حسابك في منصة شحنتي. يمكنك البدء في استخدام كافة ميزات المنصة الآن.',
+    reject: 'يرجى مراجعة البيانات المدخلة وإعادة المحاولة.',
+    disable: 'تم تعطيل الحساب مؤقتاً بسبب مخالفة سياسات المنصة.',
+    activate: 'تم إعادة تفعيل حسابك بنجاح. يمكنك استئناف العمل الآن.',
+    delete: 'تم حذف الحساب نهائياً من منصة شحنتي لمخالفته شروط الاستخدام. يرجى العلم أن هذا الإجراء نهائي ولا يمكن التراجع عنه.'
+  };
+
+  useEffect(() => {
+    if (openActionDialog && DEFAULT_REASONS[openActionDialog]) {
+      setActionReason(DEFAULT_REASONS[openActionDialog]);
+    } else {
+      setActionReason('');
+    }
+  }, [openActionDialog]);
 
   // Fetch real user details
   const fetchUser = React.useCallback(async () => {
@@ -109,9 +125,15 @@ export const UserDetails = () => {
     if (openActionDialog === 'approve') targetStatus = 'approved';
     else if (openActionDialog === 'reject') targetStatus = 'rejected';
     else if (openActionDialog === 'disable') targetStatus = 'blocked';
+    else if (openActionDialog === 'activate') targetStatus = 'approved';
     else if (openActionDialog === 'delete') targetStatus = 'deleted';
 
     if (!targetStatus) return;
+
+    if (!actionReason.trim()) {
+      toast.error('يرجى كتابة سبب الإجراء أولاً');
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -119,6 +141,14 @@ export const UserDetails = () => {
       if (openActionDialog === 'disable') {
         await userService.suspendUser(id);
         toast.success('تم تعطيل الحساب بنجاح');
+      } else if (openActionDialog === 'activate') {
+        await userService.activateUser(id);
+        toast.success('تم تفعيل الحساب بنجاح');
+      } else if (openActionDialog === 'delete') {
+        await userService.deleteUser(id);
+        toast.success('تم حذف الحساب بنجاح');
+        navigate('/users');
+        return;
       } else {
         await userService.updateUserStatus(id, targetStatus, actionReason);
         toast.success(
@@ -196,7 +226,7 @@ export const UserDetails = () => {
       {/* 1. Main UI - Hidden during print */}
       <div className="space-y-8 no-print">
         {/* Top Navigation & Header - Navbar Style */}
-        <div className="top-0 z-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-100 dark:border-gray-700 rounded-[2rem] p-4 mb-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 top-navbar">
+        <div className="top-0 z-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-100 dark:border-gray-700 rounded-[.5rem] p-4 mb-8 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 top-navbar">
           <div className="flex items-center gap-4 px-2">
             <div>
               <div className="flex items-center gap-3">
@@ -221,23 +251,34 @@ export const UserDetails = () => {
 
           <div className="flex flex-wrap items-center gap-1.5">
             {/* Print Button */}
-            <Button
-              size="small"
-              onClick={() => window.print()}
-              className="!text-gray-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
-              startIcon={<Printer className="w-3.5 h-3.5" />}
-            >
-              طباعة
-            </Button>
+            {/* Print Button */}
+            <Tooltip title="طباعة" arrow placement="bottom">
+              <IconButton
+                onClick={() => window.print()}
+                className="hover:!bg-gray-100 !text-gray-600 transition-all duration-300"
+              >
+                <Printer className="w-5 h-5" />
+              </IconButton>
+            </Tooltip>
 
-            {/* Edit Button - No Background */}
-            <Button
-              size="small"
-              className="!text-blue-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
-              startIcon={<Edit className="w-3.5 h-3.5" />}
-            >
-              تعديل
-            </Button>
+            {/* Edit Button */}
+            <Tooltip title="تعديل" arrow placement="bottom">
+              <IconButton
+                className="hover:!bg-blue-50 !text-blue-600 transition-all duration-300"
+              >
+                <Pencil className="w-5 h-5" />
+              </IconButton>
+            </Tooltip>
+
+            {/* Delete Button */}
+            <Tooltip title="حذف الحساب" arrow placement="bottom">
+              <IconButton
+                onClick={() => setOpenActionDialog('delete')}
+                className="hover:!bg-rose-50 !text-rose-600 transition-all duration-300"
+              >
+                <Trash2 className="w-5 h-5" />
+              </IconButton>
+            </Tooltip>
 
             <Button
               size="small"
@@ -259,34 +300,38 @@ export const UserDetails = () => {
               رفض
             </Button>
 
-            <Button
-              size="small"
-              className="!text-amber-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 disabled:opacity-30 transition-all duration-300 !px-2 !min-w-0"
-              onClick={() => setOpenActionDialog('disable')}
-              disabled={user.status === 'suspended'}
-              startIcon={<PowerOff className="w-3.5 h-3.5" />}
-            >
-              تعطيل
-            </Button>
+            {user.status === 'suspended' ? (
+              <Button
+                size="small"
+                className="!text-emerald-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
+                onClick={() => setOpenActionDialog('activate')}
+                startIcon={<UserCheck className="w-3.5 h-3.5" />}
+              >
+                تفعيل الحساب
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                className="!text-amber-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 disabled:opacity-30 transition-all duration-300 !px-2 !min-w-0"
+                onClick={() => setOpenActionDialog('disable')}
+                disabled={user.status === 'suspended'}
+                startIcon={<Ban className="w-3.5 h-3.5" />}
+              >
+                تعطيل
+              </Button>
+            )}
 
-            <Button
-              size="small"
-              className="!text-rose-600 !font-black !text-[11px] !bg-transparent hover:!bg-transparent hover:opacity-75 transition-all duration-300 !px-2 !min-w-0"
-              onClick={() => setOpenActionDialog('delete')}
-              startIcon={<Trash2 className="w-3.5 h-3.5" />}
-            >
-              حذف
-            </Button>
+
           </div>
         </div>
 
         <div className="flex flex-col gap-8">
           {/* 1. Main Identity Card - Full Width Header */}
-          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm relative overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-[.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-brand-primary/5 to-transparent" />
             <div className="relative flex flex-col md:flex-row items-center md:items-start gap-8">
-              <div className="p-1 bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl">
-                <div className="w-32 h-32 rounded-[1.8rem] bg-brand-primary/10 flex items-center justify-center text-4xl font-black text-brand-primary border-2 border-brand-primary/5 overflow-hidden">
+              <div className="p-1 bg-white dark:bg-gray-800 rounded-[.5rem] shadow-xl">
+                <div className="w-32 h-32 rounded-[.5rem] bg-brand-primary/10 flex items-center justify-center text-4xl font-black text-brand-primary border-2 border-brand-primary/5 overflow-hidden">
                   {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : user.name.charAt(0)}
                 </div>
               </div>
@@ -298,13 +343,13 @@ export const UserDetails = () => {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto md:mr-0">
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100/50">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-[.5rem] border border-gray-100/50">
                     <p className="text-[10px] font-black text-gray-400 uppercase mb-1 tracking-widest">{user.role === 'driver' ? 'الرحلات' : 'الشحنات'}</p>
                     <p className="text-xl font-black text-gray-800 dark:text-white leading-none">{user.vehicleInfo.tripsCount}</p>
                   </div>
                   {user.role === 'driver' && (
                     <>
-                      <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50">
+                      <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-[.5rem] border border-amber-100/50">
                         <p className="text-[10px] font-black text-amber-600/60 uppercase mb-1 tracking-widest">التقييم</p>
                         <div className="flex items-center justify-center md:justify-start gap-1">
                           <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
@@ -312,12 +357,12 @@ export const UserDetails = () => {
                         </div>
                       </div>
 
-                      <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100/50">
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-[.5rem] border border-blue-100/50">
                         <p className="text-[10px] font-black text-blue-600/60 uppercase mb-1 tracking-widest">عدد التقيمات</p>
                         <p className="text-xl font-black text-gray-800 dark:text-white leading-none">{user.vehicleInfo.reviewsCount}</p>
                       </div>
 
-                      <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50">
+                      <div className="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-[.5rem] border border-emerald-100/50">
                         <p className="text-[10px] font-black text-emerald-600/60 uppercase mb-1 tracking-widest">الأرباح</p>
                         <p className="text-xl font-black text-gray-800 dark:text-white leading-none font-mono">{user.vehicleInfo.earnings}</p>
                       </div>
@@ -330,7 +375,7 @@ export const UserDetails = () => {
           </div>
 
           {/* 2. Performance Metrics */}
-          <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-[.5rem] border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
             <h4 className="font-black text-gray-800 dark:text-white mb-8 flex items-center gap-3">
               <div className="p-2 bg-brand-primary/10 rounded-lg">
                 <Zap className="w-5 h-5 text-brand-primary" />
@@ -413,7 +458,7 @@ export const UserDetails = () => {
                   <InfoBox icon={Truck} label="اللون" value={user.vehicleInfo.color} />
                   <InfoBox icon={Calendar} label="تاريخ انتهاء رخصة المركبة" value={renderExpiryValue(user.vehicleInfo.expiryDate)} highlight />
                 </div>
-                <div className="p-8 bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] border border-gray-100 dark:border-gray-700">
+                <div className="p-8 bg-gray-50 dark:bg-gray-900/50 rounded-[.5rem] border border-gray-100 dark:border-gray-700">
                   <h5 className="text-[11px] font-black text-gray-400 uppercase mb-8 flex items-center gap-2 tracking-widest">
                     <FileText className="w-4 h-4" />
                     صور رخصة المركبة
@@ -574,13 +619,14 @@ export const UserDetails = () => {
       <Dialog
         open={openActionDialog !== null}
         onClose={() => setOpenActionDialog(null)}
-        PaperProps={{ className: "!rounded-[2.5rem] !p-4 !shadow-2xl sm:!min-w-[500px] !overflow-hidden" }}
+        PaperProps={{ className: "!rounded-[.5rem] !p-4 !shadow-2xl sm:!min-w-[500px] !overflow-hidden" }}
       >
         <DialogTitle className="!font-black !text-gray-800 !flex !items-center !gap-3 !text-xl">
-          {openActionDialog === 'approve' && <><div className="p-3 bg-emerald-50 rounded-2xl"><UserCheck className="text-emerald-500" /></div> توثيق واعتماد الحساب</>}
-          {openActionDialog === 'reject' && <><div className="p-3 bg-orange-50 rounded-2xl"><XCircle className="text-orange-500" /></div> رفض المستندات المقدمة</>}
-          {openActionDialog === 'disable' && <><div className="p-3 bg-amber-50 rounded-2xl"><PowerOff className="text-amber-600" /></div> تعطيل الحساب مؤقتاً</>}
-          {openActionDialog === 'delete' && <><div className="p-3 bg-rose-50 rounded-2xl"><Trash2 className="text-rose-600" /></div> حذف الحساب نهائياً</>}
+          {openActionDialog === 'approve' && <><div className="p-3 bg-emerald-50 rounded-[.5rem]"><UserCheck className="text-emerald-500" /></div> توثيق واعتماد الحساب</>}
+          {openActionDialog === 'reject' && <><div className="p-3 bg-orange-50 rounded-[.5rem]"><XCircle className="text-orange-500" /></div> رفض المستندات المقدمة</>}
+          {openActionDialog === 'disable' && <><div className="p-3 bg-amber-50 rounded-[.5rem]"><Ban className="text-amber-600" /></div> تعطيل الحساب مؤقتاً</>}
+          {openActionDialog === 'activate' && <><div className="p-3 bg-emerald-50 rounded-[.5rem]"><UserCheck className="text-emerald-500" /></div> تفعيل الحساب</>}
+          {openActionDialog === 'delete' && <><div className="p-3 bg-rose-50 rounded-[.5rem]"><Trash2 className="text-rose-600" /></div> حذف الحساب نهائياً</>}
         </DialogTitle>
         <Divider />
         <DialogContent className="!py-8">
@@ -590,12 +636,10 @@ export const UserDetails = () => {
             multiline
             rows={5}
             fullWidth
-            placeholder={
-              openActionDialog === 'approve' ? 'مبارك لك، تم تفعيل حسابك في منصة شحنتي. يمكنك البدء في استخدام كافة ميزات المنصة الآن.' :
-                openActionDialog === 'reject' ? 'يرجى مراجعة البيانات المدخلة وإعادة المحاولة.' :
-                  'تم حظر الحساب بسبب مخالفة سياسات المنصة.'
-            }
+            placeholder="يرجى كتابة الملاحظات هنا..."
             variant="outlined"
+            required
+            error={!actionReason.trim()}
             value={actionReason}
             onChange={(e) => setActionReason(e.target.value)}
             sx={{
@@ -609,13 +653,14 @@ export const UserDetails = () => {
           />
         </DialogContent>
         <DialogActions className="!px-8 !pb-8 !gap-4">
-          <Button onClick={() => setOpenActionDialog(null)} className="!rounded-2xl !font-black !text-gray-400 !px-6">تراجع</Button>
+          <Button onClick={() => setOpenActionDialog(null)} className="!rounded-[.5rem] !font-black !text-gray-400 !px-6">تراجع</Button>
           <Button
             onClick={handleAction}
             variant="contained"
-            className={`!rounded-2xl !px-10 !py-3.5 !font-black !shadow-lg ${openActionDialog === 'approve' ? '!bg-emerald-500 !shadow-emerald-500/20' :
+            className={`!rounded-[.5rem] !px-10 !py-3.5 !font-black !shadow-lg ${openActionDialog === 'approve' ? '!bg-emerald-500 !shadow-emerald-500/20' :
               openActionDialog === 'reject' ? '!bg-orange-500 !shadow-orange-500/20' :
-                openActionDialog === 'disable' ? '!bg-amber-600 !shadow-amber-600/20' : '!bg-rose-600 !shadow-rose-600/20'
+                openActionDialog === 'activate' ? '!bg-emerald-600 !shadow-emerald-600/20' :
+                  openActionDialog === 'disable' ? '!bg-amber-600 !shadow-amber-600/20' : '!bg-rose-600 !shadow-rose-600/20'
               }`}
           >
             تأكيد العملية
@@ -628,7 +673,7 @@ export const UserDetails = () => {
 
 // UI Components
 const SectionCard = ({ icon: Icon, title, children }) => (
-  <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+  <div className="bg-white dark:bg-gray-800 rounded-[.5rem] border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
     <div className="p-6 border-b border-gray-50 dark:border-gray-700 bg-gray-50/20 flex items-center gap-3">
       <div className="p-2 bg-brand-primary/10 rounded-lg">
         <Icon className="w-4 h-4 text-brand-primary" />
@@ -641,7 +686,7 @@ const SectionCard = ({ icon: Icon, title, children }) => (
 
 const InfoBox = ({ icon: Icon, label, value, highlight, fullWidth }) => (
   <div className={`flex items-start gap-4 ${fullWidth ? 'md:col-span-2' : ''}`}>
-    <div className={`w-12 h-12 rounded-[1.25rem] flex items-center justify-center shadow-sm ${highlight ? 'bg-orange-50 text-orange-500 border border-orange-100' : 'bg-gray-50 dark:bg-gray-900/50 text-gray-400 border border-gray-100 dark:border-gray-700'}`}>
+    <div className={`w-12 h-12 rounded-[.5rem] flex items-center justify-center shadow-sm ${highlight ? 'bg-orange-50 text-orange-500 border border-orange-100' : 'bg-gray-50 dark:bg-gray-900/50 text-gray-400 border border-gray-100 dark:border-gray-700'}`}>
       <Icon className="w-5 h-5" />
     </div>
     <div>
@@ -657,12 +702,12 @@ const InfoBox = ({ icon: Icon, label, value, highlight, fullWidth }) => (
 const ImagePreview = ({ label, src }) => (
   <div className="space-y-3 group">
     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">{label}</p>
-    <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden border-2 border-gray-100 dark:border-gray-700 shadow-sm bg-gray-100 dark:bg-gray-900 group-hover:border-brand-primary transition-all duration-300">
+    <div className="relative aspect-[16/10] rounded-[.5rem] overflow-hidden border-2 border-gray-100 dark:border-gray-700 shadow-sm bg-gray-100 dark:bg-gray-900 group-hover:border-brand-primary transition-all duration-300">
       <img src={src} alt={label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
         <button
           onClick={() => window.open(src, '_blank')}
-          className="p-3 bg-white rounded-2xl text-gray-800 font-black text-xs flex items-center gap-2 shadow-xl active:scale-95 transition-transform hover:bg-gray-50"
+          className="p-3 bg-white rounded-[.5rem] text-gray-800 font-black text-xs flex items-center gap-2 shadow-xl active:scale-95 transition-transform hover:bg-gray-50"
         >
           <ExternalLink className="w-4 h-4" /> عرض بحجم كامل
         </button>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Search, Eye, Edit, Trash2,
+  Search, Eye, Pencil, Trash2,
   Download, Users, Truck, ShoppingCart, Building,
   MapPin, ShieldCheck, Phone, Clock, Filter as FilterIcon,
   ChevronRight, ChevronLeft, User
@@ -248,7 +248,7 @@ export const AllUsersPage = () => {
                           <IconButton component={Link} to={`/users/details/${u.id}`} size="small" className="hover:!text-brand-primary hover:!bg-brand-primary/10 transition-all p-2.5">
                             <Eye className="w-4 h-4" />
                           </IconButton>
-                          <IconButton size="small" className="hover:!text-blue-600 hover:!bg-blue-50 transition-all p-2.5"><Edit className="w-4 h-4" /></IconButton>
+                          <IconButton size="small" className="hover:!text-blue-600 hover:!bg-blue-50 transition-all p-2.5"><Pencil className="w-4 h-4" /></IconButton>
                           <IconButton size="small" className="hover:!text-rose-600 hover:!bg-rose-50 transition-all p-2.5"><Trash2 className="w-4 h-4" /></IconButton>
                         </div>
                       </td>

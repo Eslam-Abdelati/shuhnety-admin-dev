@@ -16,9 +16,12 @@ export const API_ENDPOINTS = {
     },
     DASHBOARD: {
         ALL_USERS: '/dashboard/users',
-        USER_DETAILS: (id) => `/dashboard/${id}/user`,
-        UPDATE_USER_STATUS: (id) => `/dashboard/${id}/user/status`,
-        SUSPEND_USER: (id) => `/dashboard/${id}/user/suspend`,
+        USER_DETAILS: (id) => `/dashboard/user/${id}`,
+        UPDATE_USER_STATUS: (id) => `/dashboard/user/${id}/status`,
+        SUSPEND_USER: (id) => `/dashboard/user/${id}/suspend`,
+        ACTIVATE_USER: (id) => `/dashboard/user/${id}/activate`,
+        DELETE_USER: (id) => `/dashboard/user/${id}/delete`,
+        STATISTICS: '/dashboard/statistics',
     },
     NOTIFICATIONS: {
         GET_USER: '/notifications/getUserNotifications',

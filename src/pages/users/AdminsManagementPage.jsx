@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   UserPlus, Search, Shield, Mail,
   Phone, MoreVertical, Edit2, Trash2,
-  Filter, ChevronRight, Send,
+  Filter, ChevronRight, Send, Eye,
   Clock, ShieldCheck, ShieldAlert
 } from 'lucide-react';
 import {
@@ -230,6 +230,12 @@ const AdminsManagementPage = () => {
           className: "!rounded-[1.25rem] !mt-2 !shadow-2xl !border !border-gray-50 dark:!border-gray-700 !min-w-[180px] dark:!bg-gray-800"
         }}
       >
+        <MenuItem onClick={() => {
+          navigate(`/users/details/${selectedAdmin.id}`);
+          handleMenuClose();
+        }} className="!text-xs !font-black !gap-3 !py-3 !text-brand-primary hover:!bg-brand-primary/10">
+          <Eye className="w-4 h-4" /> عرض التفاصيل
+        </MenuItem>
         <MenuItem onClick={handleResendOTP} className="!text-xs !font-black !gap-3 !py-3 !text-emerald-600 hover:!bg-emerald-50/50 dark:hover:!bg-emerald-900/20">
           <Send className="w-4 h-4" /> إعادة إرسال كود التفعيل
         </MenuItem>

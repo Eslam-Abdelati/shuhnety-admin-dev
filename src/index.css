@@ -8,9 +8,9 @@
 @theme {
   --font-cairo: "Cairo", "Inter", sans-serif;
 
-  --radius-lg: 0.75rem;
-  --radius-md: calc(0.75rem - 2px);
-  --radius-sm: calc(0.75rem - 4px);
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
 
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -72,7 +72,7 @@
   --border: 214.3 32% 91%;
   --input: 214.3 32% 91%;
   --ring: 221.2 83.2% 53.3%;
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 
 .dark {

@@ -17,6 +17,19 @@ export const userService = {
   },
 
   /**
+   * Get dashboard statistics
+   */
+  getStatistics: async () => {
+    try {
+      const response = await axiosClient.get(API_ENDPOINTS.DASHBOARD.STATISTICS);
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error('Error fetching dashboard statistics:', error);
+      throw new Error(error.response?.data?.message || 'فشل في جلب الإحصائيات');
+    }
+  },
+
+  /**
    * Get specific user details by ID
    */
   getUserDetails: async (id) => {
@@ -53,6 +66,32 @@ export const userService = {
     } catch (error) {
       console.error(`Error suspending user ${id}:`, error);
       throw new Error(error.response?.data?.message || 'فشل في تعطيل الحساب');
+    }
+  },
+
+  /**
+   * Activate a user by ID
+   */
+  activateUser: async (id) => {
+    try {
+      const response = await axiosClient.patch(API_ENDPOINTS.DASHBOARD.ACTIVATE_USER(id));
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error(`Error activating user ${id}:`, error);
+      throw new Error(error.response?.data?.message || 'فشل في تفعيل الحساب');
+    }
+  },
+
+  /**
+   * Delete a user by ID (PATCH)
+   */
+  deleteUser: async (id) => {
+    try {
+      const response = await axiosClient.patch(API_ENDPOINTS.DASHBOARD.DELETE_USER(id));
+      return response.data?.data || response.data;
+    } catch (error) {
+      console.error(`Error deleting user ${id}:`, error);
+      throw new Error(error.response?.data?.message || 'فشل في حذف الحساب');
     }
   },
 

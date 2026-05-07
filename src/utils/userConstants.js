@@ -40,7 +40,7 @@ export const USER_STATUSES = {
 
   'rejected': {
     label: 'مرفوض',
-    color: 'text-rose-600 bg-rose-50',
+    color: 'text-rose-600 ',
     iconColor: 'text-rose-500',
     icon: XCircle
   },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Users, ShoppingCart, User, ChevronLeft, ChevronRight,
   Package, Truck, CheckCircle, XCircle, Banknote, Star,
-  Eye, Edit, Trash2, TrendingUp, MoreHorizontal, Plus
+  Eye, Pencil, Trash2, TrendingUp, MoreHorizontal, Plus
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -11,9 +11,10 @@ import {
 import { Button, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../../services/userService';
+import { getStatusConfig } from '../../utils/userConstants';
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="flex items-center p-3 sm:p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800 border dark:border-gray-700 transition-all hover:shadow-md min-w-0">
+  <div className="flex items-center p-3 sm:p-4 bg-white rounded-[.5rem] shadow-xs dark:bg-gray-800 border dark:border-gray-700 transition-all hover:shadow-md min-w-0">
     <div className={`flex-shrink-0 p-2 sm:p-3 ml-2 sm:ml-4 rounded-full ${color}`}>
       <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
     </div>
@@ -58,38 +59,35 @@ export const AdminDashboard = () => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [timeFilter, setTimeFilter] = React.useState('اسبوعي');
   const [captains, setCaptains] = useState([]);
+  const [statsData, setStatsData] = useState(null);
   const [isLoadingCaptains, setIsLoadingCaptains] = useState(true);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   // Fetch Drivers from API
   useEffect(() => {
-    const fetchDrivers = async () => {
+    const fetchDashboardData = async () => {
       try {
         setIsLoadingCaptains(true);
+        setIsLoadingStats(true);
+
+        // Fetch Stats
+        const statsRes = await userService.getStatistics();
+        setStatsData(statsRes);
+
+        // Fetch Recent Drivers
         const response = await userService.getAllUsers({ userRole: 'driver' });
-        console.log(response
-
-        );
-
-        // Take only the first 5 for the dashboard table
         const driversList = (response?.data || response || []).slice(0, 5);
         setCaptains(driversList);
       } catch (error) {
-        console.error('Error fetching dashboard drivers:', error);
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setIsLoadingCaptains(false);
+        setIsLoadingStats(false);
       }
     };
-    fetchDrivers();
+    fetchDashboardData();
   }, []);
 
-  const stats = [
-    { icon: Users, label: 'إجمالي المستخدمين', value: '4,521', color: 'bg-blue-500' },
-    { icon: Banknote, label: 'إجمالي الأرباح', value: 'EGP 12,450', color: 'bg-emerald-500' },
-    { icon: Package, label: 'إجمالي الشحنات', value: '1,250', color: 'bg-indigo-500' },
-    { icon: Truck, label: 'شحنات نشطة', value: '85', color: 'bg-amber-500' },
-    { icon: CheckCircle, label: 'شحنات مكتملة', value: '1,100', color: 'bg-green-500' },
-    { icon: XCircle, label: 'شحنات ملغية', value: '65', color: 'bg-rose-500' },
-  ];
 
   return (
     <div className="w-full max-w-full overflow-x-hidden space-y-6 pb-8 animate-in fade-in duration-500">
@@ -98,7 +96,7 @@ export const AdminDashboard = () => {
         <Button
           variant="contained"
           onClick={() => navigate('/users/add-manager')}
-          className="!bg-brand-primary !rounded-xl !py-2.5 !px-6 !font-bold !shadow-sm transition-all duration-300 hover:!bg-brand-primary/90 hover:shadow-md !text-sm whitespace-nowrap"
+          className="!bg-brand-primary !rounded-[.5rem] !py-2.5 !px-6 !font-bold !shadow-sm transition-all duration-300 hover:!bg-brand-primary/90 hover:shadow-md !text-sm whitespace-nowrap"
           sx={{ textTransform: 'none' }}
         >
           إضافة مدير
@@ -106,13 +104,24 @@ export const AdminDashboard = () => {
       </div>
 
       <div className="grid gap-4 sm:gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
+        {isLoadingStats ? (
+          Array(6).fill(0).map((_, i) => (
+            <div key={i} className="h-24 bg-gray-100 dark:bg-gray-700 animate-pulse rounded-[.5rem]" />
+          ))
+        ) : (
+          <>
+            <StatCard icon={Users} label="إجمالي المستخدمين" value={statsData?.users?.total || 0} color="bg-blue-500" />
+            <StatCard icon={Banknote} label="إجمالي الأرباح" value={`${statsData?.revenue?.total || 0} ${statsData?.revenue?.currency || 'EGP'}`} color="bg-emerald-500" />
+            <StatCard icon={Package} label="إجمالي الشحنات" value={statsData?.shipments?.total || 0} color="bg-indigo-500" />
+            <StatCard icon={Truck} label="شحنات نشطة" value={statsData?.shipments?.active || 0} color="bg-amber-500" />
+            <StatCard icon={CheckCircle} label="شحنات مكتملة" value={statsData?.shipments?.completed || 0} color="bg-green-500" />
+            <StatCard icon={XCircle} label="شحنات ملغية" value={statsData?.shipments?.cancelled || 0} color="bg-rose-500" />
+          </>
+        )}
       </div>
 
       {/* Charts Section */}
-      <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-[.5rem] p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
           <div className="flex-shrink-0">
             <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">تقرير المبيعات والشحنات</h3>
@@ -140,7 +149,7 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="hidden lg:block">
-            <button className="p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-400 transition-colors">
+            <button className="p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-[.5rem] text-gray-400 transition-colors">
               <MoreHorizontal className="w-5 h-5" />
             </button>
           </div>
@@ -201,7 +210,7 @@ export const AdminDashboard = () => {
       {/* Charts Section */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Sales Growth */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-[.5rem] p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">نمو المبيعات</h3>
             <button className="text-gray-400"><MoreHorizontal className="w-5 h-5" /></button>
@@ -235,13 +244,13 @@ export const AdminDashboard = () => {
         </div>
 
         {/* Top Shipment Types */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-[.5rem] p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-start justify-between mb-8 gap-4">
             <div>
               <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">الأكثر شحناً حسب النوع</h3>
               <p className="text-xs text-gray-400 mt-1 font-medium">حسب الفترة المختارة</p>
             </div>
-            <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700/50 p-1 rounded-lg">
+            <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-700/50 p-1 rounded-[.5rem]">
               {['يوم', 'شهر', 'سنة'].map((f) => (
                 <button
                   key={f}
@@ -277,14 +286,14 @@ export const AdminDashboard = () => {
             })}
           </div>
 
-          <button className="w-full mt-8 py-3 text-sm font-bold text-brand-primary bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl transition-all">
+          <button className="w-full mt-8 py-3 text-sm font-bold text-brand-primary bg-brand-primary/5 hover:bg-brand-primary/10 rounded-[.5rem] transition-all">
             عرض تقرير الأنواع المفصل
           </button>
         </div>
       </div>
 
       {/* Tables Display */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8 w-full max-w-full">
+      <div className="bg-white dark:bg-gray-800 rounded-[.5rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8 w-full max-w-full">
         <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
           <h3 className="font-bold text-gray-800 dark:text-gray-200">أحدث الكباتن المسجلين</h3>
           <Button
@@ -322,9 +331,7 @@ export const AdminDashboard = () => {
                 {captains.map((c) => (
                   <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-brand-primary/10 flex items-center justify-center font-bold text-brand-primary">
-                        {c.full_name?.charAt(0)}
-                      </div>
+
                       <div>
                         <p className="font-bold text-gray-800 dark:text-gray-200">{c.full_name}</p>
                         <p className="text-xs text-gray-500">{c.email}</p>
@@ -334,13 +341,14 @@ export const AdminDashboard = () => {
                       {c.role === 'driver' ? 'نقل ثقيل' : 'عميل'}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 text-xs font-bold rounded-full ${c.status === 'موثق' || (c.isActive && !c.status) ? 'bg-emerald-100 text-emerald-700' :
-                        c.status === 'موقوف' || (!c.isActive && !c.status) ? 'bg-rose-100 text-rose-700' :
-                          c.status === 'قيد المراجعة' ? 'bg-amber-100 text-amber-700' :
-                            'bg-gray-100 text-gray-700'
-                        }`}>
-                        {c.status || (c.isActive ? 'موثق' : 'موقوف')}
-                      </span>
+                      {(() => {
+                        const config = getStatusConfig(c.status);
+                        return (
+                          <span className={`px-3 py-1 text-xs font-bold rounded-full ${config.color}`}>
+                            {config.label}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 flex items-center gap-1 font-bold text-sm">
                       <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> {c.rating || '0.0'}
@@ -352,14 +360,14 @@ export const AdminDashboard = () => {
                       <div className="flex justify-center gap-2">
                         <button
                           onClick={() => navigate(`/users/details/${c.id}`)}
-                          className="p-2 hover:bg-brand-primary/10 rounded-lg text-gray-400 hover:text-brand-primary transition-all"
+                          className="p-2 hover:bg-brand-primary/10 rounded-[.5rem] text-gray-400 hover:text-brand-primary transition-all"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button className="p-2 hover:bg-blue-50 rounded-lg text-gray-400 hover:text-blue-600 transition-all">
-                          <Edit className="w-4 h-4" />
+                        <button className="p-2 hover:bg-blue-50 rounded-[.5rem] text-gray-400 hover:text-blue-600 transition-all">
+                          <Pencil className="w-4 h-4" />
                         </button>
-                        <button className="p-2 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-all">
+                        <button className="p-2 hover:bg-red-50 rounded-[.5rem] text-gray-400 hover:text-red-500 transition-all">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
