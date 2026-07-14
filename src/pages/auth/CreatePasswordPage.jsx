@@ -127,7 +127,9 @@ const CreatePasswordPage = () => {
                           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
-                      {errors.password && <p className="text-[10px] text-red-500 font-bold mt-1">{errors.password.message}</p>}
+                      <div className="h-4">
+                        {errors.password && <p className="text-[10px] text-red-500 font-bold mr-1">{errors.password.message}</p>}
+                      </div>
                     </div>
 
                     {/* Confirm Password Input */}
@@ -151,7 +153,9 @@ const CreatePasswordPage = () => {
                           {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
-                      {errors.confirm_password && <p className="text-[10px] text-red-500 font-bold mt-1">{errors.confirm_password.message}</p>}
+                      <div className="h-4">
+                        {errors.confirm_password && <p className="text-[10px] text-red-500 font-bold mr-1">{errors.confirm_password.message}</p>}
+                      </div>
                     </div>
 
 

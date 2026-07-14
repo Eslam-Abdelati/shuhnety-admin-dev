@@ -96,9 +96,11 @@ const ForgotPasswordPage = () => {
                       <Mail className={`w-5 h-5 ${errors.email ? 'text-red-500' : 'text-gray-400'}`} />
                     </div>
                   </div>
-                  {errors.email && (
-                    <p className="text-xs text-red-500 mt-1 mr-1">{errors.email.message}</p>
-                  )}
+                  <div className="h-4">
+                    {errors.email && (
+                      <p className="text-xs text-red-500 mr-1">{errors.email.message}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Submit Button */}

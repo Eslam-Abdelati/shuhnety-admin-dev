@@ -117,9 +117,11 @@ const ResetPasswordPage = () => {
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
-                  {errors.password && (
-                    <p className="text-xs text-red-500 mt-1 mr-1">{errors.password.message}</p>
-                  )}
+                  <div className="h-4">
+                    {errors.password && (
+                      <p className="text-xs text-red-500 mr-1">{errors.password.message}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Confirm Password Input */}
@@ -137,9 +139,11 @@ const ResetPasswordPage = () => {
                       <CheckCircle2 className="w-5 h-5" />
                     </div>
                   </div>
-                  {errors.confirm_password && (
-                    <p className="text-xs text-red-500 mt-1 mr-1">{errors.confirm_password.message}</p>
-                  )}
+                  <div className="h-4">
+                    {errors.confirm_password && (
+                      <p className="text-xs text-red-500 mr-1">{errors.confirm_password.message}</p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Submit Button */}
