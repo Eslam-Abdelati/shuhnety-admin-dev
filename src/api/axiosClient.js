@@ -24,10 +24,12 @@ axiosClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // تجاوز صفحة ngrok
-  // نرسلها دائماً كـ header لضمان عملها مع الـ proxy أو بدونه
-  config.headers['ngrok-skip-browser-warning'] = 'true';
-
+  // تجاوز صفحة ngrok فقط عند الاتصال بنطاق ngrok لتجنب أخطاء CORS على السيرفرات الرسمية
+  const isNgrok = (config.baseURL && config.baseURL.includes('ngrok')) ||
+                  (typeof config.url === 'string' && config.url.includes('ngrok'));
+  if (isNgrok) {
+    config.headers['ngrok-skip-browser-warning'] = 'true';
+  }
 
   return config;
 });

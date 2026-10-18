@@ -17,12 +17,9 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'https://healthy-salmon-darling.ngrok-free.app',
+                target: 'https://shuhnety-ricmf.ondigitalocean.app',
                 changeOrigin: true,
                 rewrite: (path) => path.replace(/^\/api/, ''),
-                headers: {
-                    'ngrok-skip-browser-warning': 'true',
-                },
             },
         },
     },
